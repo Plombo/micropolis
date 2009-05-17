@@ -1,43 +1,43 @@
-# micropolisnoticepanel.py
-#
+# Makefile for Micropolis
+# 
 # Micropolis, Unix Version.  This game was released for the Unix platform
 # in or about 1990 and has been modified for inclusion in the One Laptop
 # Per Child program.  Copyright (C) 1989 - 2007 Electronic Arts Inc.  If
 # you need assistance with this program, you may contact:
 #   http://wiki.laptop.org/go/Micropolis  or email  micropolis@laptop.org.
-#
+# 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or (at
 # your option) any later version.
-#
+# 
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.  You should have received a
 # copy of the GNU General Public License along with this program.  If
 # not, see <http://www.gnu.org/licenses/>.
-#
+# 
 #             ADDITIONAL TERMS per GNU GPL Section 7
-#
+# 
 # No trademark or publicity rights are granted.  This license does NOT
 # give you any right, title or interest in the trademark SimCity or any
 # other Electronic Arts trademark.  You may not distribute any
 # modification of this program using the trademark SimCity or claim any
 # affliation or association with Electronic Arts Inc. or its employees.
-#
+# 
 # Any propagation or conveyance of this program must include this
 # copyright notice and these terms.
-#
+# 
 # If you convey this program (or any modifications of it) and assume
 # contractual liability for the program to recipients of it, you agree
 # to indemnify Electronic Arts for any liability that those contractual
 # assumptions impose on Electronic Arts.
-#
+# 
 # You may not misrepresent the origins of this program; modified
 # versions of the program must be marked as such and not identified as
 # the original program.
-#
+# 
 # This disclaimer supplements the one included in the General Public
 # License.  TO THE FULLEST EXTENT PERMISSIBLE UNDER APPLICABLE LAW, THIS
 # PROGRAM IS PROVIDED TO YOU "AS IS," WITH ALL FAULTS, WITHOUT WARRANTY
@@ -59,104 +59,15 @@
 # CONSUMER, SO SOME OR ALL OF THE ABOVE EXCLUSIONS AND LIMITATIONS MAY
 # NOT APPLY TO YOU.
 
-
 ########################################################################
-# Micropolis Status View
-# Don Hopkins
 
+all:
+	echo "Nothing to make (yet)."
 
-########################################################################
-# Import stuff
+clean:
+	cd src ; make clean
 
-
-import gtk
-import cairo
-import pango
-import micropolisengine
-import micropolisview
-import micropolisnoticeview
-import micropolisdrawingarea
-
-########################################################################
-# MicropolisNoticePanel
-
-
-class MicropolisNoticePanel(gtk.Frame):
-
-
-    def __init__(
-        self,
-        engine=None,
-        centerOnTileHandler=None,
-        **args):
-
-        gtk.Frame.__init__(
-            self,
-            **args)
-
-        self.engine = engine
-        self.mapViewVisible = False
-
-        engine.expressInterest(
-            self,
-            ('gameMode',))
-
-        # Views
-
-        hpaned1 = gtk.HPaned()
-        self.hpaned1 = hpaned1
-        self.add(hpaned1)
-
-        self.noticeView = micropolisnoticeview.MicropolisNoticeView(
-            engine=engine,
-            setMapViewVisible=self.setMapViewVisible)
-
-        hpaned1.pack1(self.noticeView, resize=False, shrink=False)
-
-        mapView = micropolisdrawingarea.NoticeMicropolisDrawingArea(
-            engine=engine,
-            centerOnTileHandler=centerOnTileHandler)
-        self.mapView = mapView
-        mapView.set_size_request(150, -1)
-        mapView.visible = False
-        hpaned1.pack2(mapView, resize=False, shrink=False)
-
-        hpaned1.set_position(1000)
-
-
-    def update(self, name, *args):
-
-        engine = self.engine
-
-        if name == 'gameMode':
-            
-            self.updateMapViewAdded()
-
-
-    def updateMapViewAdded(self):
-        engine = self.engine
-        mapView = self.mapView
-
-        if ((engine.gameMode == 'play') and 
-            self.mapViewVisible):
-            mapView.set_property("visible", True)
-            mapView.engage()
-        else:
-            mapView.set_property("visible", False)
-            mapView.disengage()
-
-
-    def setMapViewVisible(self, visible, tileX=-1, tileY=-1, sprite=micropolisengine.SPRITE_NOTUSED):
-        #print "setMapViewVisible", visible, tileX, tileY, self.mapViewVisible
-        engine = self.engine
-        mapView = self.mapView
-
-        if visible and (tileX >= 0) and (tileY >= 0):
-            mapView.centerOnTile(tileX, tileY)
-            mapView.sprite = sprite
-
-        self.mapViewVisible = visible
-        self.updateMapViewAdded()
-
+install: all
+	echo "Nothing to install (yet)."
 
 ########################################################################
