@@ -113,6 +113,9 @@ class MicropolisPanedWindow(gtk.Window):
         **args):
 
         gtk.Window.__init__(self, **args)
+        
+        self.builder = gtk.Builder()
+        self.builder.add_from_file('interface2.ui')
 
         self.connect('destroy', gtk.main_quit)
         self.connect('realize', self.handleRealize)
@@ -127,6 +130,11 @@ class MicropolisPanedWindow(gtk.Window):
         engine.expressInterest(
             self,
             ('gameMode',))
+        
+        # Make the menu bar.
+        
+        menuBar = self.builder.get_object('menuBar')
+        self.menuBar = menuBar
 
         # Make the big map view.
 
@@ -256,10 +264,17 @@ class MicropolisPanedWindow(gtk.Window):
         modeNotebook.append_page(startPanel)
 
         modeNotebook.append_page(vpaned1)
+        
+        # Create a top level vbox for the menu bar and top level mode notebook.
+        
+        mainVbox = gtk.VBox(False, 0)
+        self.mainVbox = mainVbox
+        mainVbox.pack_start(menuBar, False, True, 0)
+        mainVbox.pack_start(modeNotebook, True, True, 0)
 
         # Put the top level mode notebook in this window.
 
-        self.add(modeNotebook)
+        self.add(mainVbox)
 
         # Load a city file.
 
