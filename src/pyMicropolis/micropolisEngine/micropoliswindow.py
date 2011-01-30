@@ -115,7 +115,7 @@ class MicropolisPanedWindow(gtk.Window):
         gtk.Window.__init__(self, **args)
         
         self.builder = gtk.Builder()
-        self.builder.add_from_file('interface2.ui')
+        self.builder.add_from_file('interface.ui')
 
         self.connect('destroy', gtk.main_quit)
         self.connect('realize', self.handleRealize)
@@ -272,9 +272,13 @@ class MicropolisPanedWindow(gtk.Window):
         mainVbox.pack_start(menuBar, False, True, 0)
         mainVbox.pack_start(modeNotebook, True, True, 0)
 
-        # Put the top level mode notebook in this window.
+        # Put the top level vbox in this window.
 
         self.add(mainVbox)
+        
+        # Set the menu callbacks.
+        
+        self.setCallbacks()
 
         # Load a city file.
 
@@ -307,7 +311,14 @@ class MicropolisPanedWindow(gtk.Window):
                 editMapView.updateView()
                 engine.resume()
                 modeNotebook.set_current_page(1)
-
+    
+    def setCallbacks(self):
+        print "SET CALLBACKS: micropoliswindow"
+        
+        builder = self.builder
+        
+        loadCityItem = builder.get_object('loadCityItem')
+        loadCityItem.connect('activate', self.loadCityDialog)
 
     def startGame(self):
 
@@ -338,7 +349,7 @@ class MicropolisPanedWindow(gtk.Window):
         engine.loadMetaScenario(id)
 
 
-    def loadCityDialog(self):
+    def loadCityDialog(self, button=None, data=None):
         print "LOAD CITY DIALOG"
 
         dialog = gtk.FileChooserDialog(
@@ -355,6 +366,11 @@ class MicropolisPanedWindow(gtk.Window):
         filter.set_name("Micropolis Cities")
         filter.add_pattern("*.xml")
         dialog.add_filter(filter)
+        
+        filter = gtk.FileFilter()
+        filter.set_name("SimCity Cities")
+        filter.add_pattern("*.cty")
+        dialog.add_filter(filter)
 
         citiesFolder = 'cities'
         dialog.set_current_folder(citiesFolder)
@@ -362,15 +378,21 @@ class MicropolisPanedWindow(gtk.Window):
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
             fileName = dialog.get_filename()
+            filterName = dialog.get_filter().get_name()
             print "FILENAME", fileName
+            print "FILE TYPE", filterName
             result = False
-            try:
-                self.engine.loadMetaCity(fileName)
-                result = True
-            except Exception, e:
-                print "FAILED TO LOAD META CITY", fileName
-                print str(e)
-                result = False
+            if filterName == 'Micropolis Cities':
+                try:
+                    self.engine.loadMetaCity(fileName)
+                    result = True
+                except Exception, e:
+                    print "FAILED TO LOAD META CITY", fileName
+                    print str(e)
+                    result = False
+            elif filterName == 'SimCity Cities':
+                result = self.engine.loadCity(fileName)
+                if not result: print 'FAILED TO LOAD CITY', fileName
             print "RESULT", result
         elif response == gtk.RESPONSE_CANCEL:
             print 'Closed, no files selected'

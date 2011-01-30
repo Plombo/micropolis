@@ -1,292 +1,292 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-	<requires lib="gtk+" version="2.16"/>
-	<object class="GtkMenuBar" id="menuBar">
-		<property name="visible">True</property>
-		<property name="ubuntu_local">True</property>
-		<child>
-			<object class="GtkMenuItem" id="menuitem1">
-				<property name="visible">True</property>
-				<property name="label" translatable="yes">_File</property>
-				<property name="use_underline">True</property>
-				<child type="submenu">
-					<object class="GtkMenu" id="fileMenu">
-						<property name="visible">True</property>
-						<property name="ubuntu_local">True</property>
-						<child>
-							<object class="GtkImageMenuItem" id="imagemenuitem1">
-								<property name="label">gtk-new</property>
-								<property name="visible">True</property>
-								<property name="use_underline">True</property>
-								<property name="use_stock">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkImageMenuItem" id="imagemenuitem2">
-								<property name="label">gtk-open</property>
-								<property name="visible">True</property>
-								<property name="use_underline">True</property>
-								<property name="use_stock">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkImageMenuItem" id="imagemenuitem3">
-								<property name="label">gtk-save</property>
-								<property name="visible">True</property>
-								<property name="use_underline">True</property>
-								<property name="use_stock">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkImageMenuItem" id="imagemenuitem4">
-								<property name="label">gtk-save-as</property>
-								<property name="visible">True</property>
-								<property name="use_underline">True</property>
-								<property name="use_stock">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkSeparatorMenuItem" id="separatormenuitem1">
-								<property name="visible">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkImageMenuItem" id="imagemenuitem5">
-								<property name="label">gtk-quit</property>
-								<property name="visible">True</property>
-								<property name="use_underline">True</property>
-								<property name="use_stock">True</property>
-							</object>
-						</child>
-					</object>
-				</child>
-			</object>
-		</child>
-		<child>
-			<object class="GtkMenuItem" id="menuitem2">
-				<property name="visible">True</property>
-				<property name="label" translatable="yes">_Options</property>
-				<property name="use_underline">True</property>
-				<child type="submenu">
-					<object class="GtkMenu" id="menu2">
-						<property name="visible">True</property>
-						<property name="ubuntu_local">True</property>
-						<child>
-							<object class="GtkCheckMenuItem" id="imagemenuitem6">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">Auto-Bull_doze</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkCheckMenuItem" id="imagemenuitem7">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">Auto-_Budget</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkCheckMenuItem" id="imagemenuitem8">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">Auto-_Goto</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkCheckMenuItem" id="imagemenuitem9">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">_Music</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkCheckMenuItem" id="menuitem5">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">_Sound Effects</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="menuitem6">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">Sp_eed</property>
-								<property name="use_underline">True</property>
-								<child type="submenu">
-									<object class="GtkMenu" id="menu1">
-										<property name="visible">True</property>
-										<property name="ubuntu_local">True</property>
-										<child>
-											<object class="GtkMenuItem" id="menuitem7">
-												<property name="visible">True</property>
-												<property name="label" translatable="yes">Fastes_t</property>
-												<property name="use_underline">True</property>
-											</object>
-										</child>
-										<child>
-											<object class="GtkMenuItem" id="menuitem8">
-												<property name="visible">True</property>
-												<property name="label" translatable="yes">_Fast</property>
-												<property name="use_underline">True</property>
-											</object>
-										</child>
-										<child>
-											<object class="GtkMenuItem" id="menuitem9">
-												<property name="visible">True</property>
-												<property name="label" translatable="yes">_Average</property>
-												<property name="use_underline">True</property>
-											</object>
-										</child>
-										<child>
-											<object class="GtkMenuItem" id="menuitem10">
-												<property name="visible">True</property>
-												<property name="label" translatable="yes">_Slow</property>
-												<property name="use_underline">True</property>
-											</object>
-										</child>
-										<child>
-											<object class="GtkMenuItem" id="menuitem11">
-												<property name="visible">True</property>
-												<property name="label" translatable="yes">_Pause</property>
-												<property name="use_underline">True</property>
-											</object>
-										</child>
-									</object>
-								</child>
-							</object>
-						</child>
-					</object>
-				</child>
-			</object>
-		</child>
-		<child>
-			<object class="GtkMenuItem" id="menuitem3">
-				<property name="visible">True</property>
-				<property name="label" translatable="yes">_Disasters</property>
-				<property name="use_underline">True</property>
-				<child type="submenu">
-					<object class="GtkMenu" id="menu4">
-						<property name="visible">True</property>
-						<property name="ubuntu_local">True</property>
-						<child>
-							<object class="GtkMenuItem" id="menuitem12">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">Fire</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="menuitem13">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">Flood</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="menuitem14">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">Air Crash</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="menuitem15">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">Tornado</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="menuitem16">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">Earthquake</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="menuitem17">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">Monster</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkSeparatorMenuItem" id="menuitem18">
-								<property name="visible">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkCheckMenuItem" id="menuitem19">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">_Disable</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-					</object>
-				</child>
-			</object>
-		</child>
-		<child>
-			<object class="GtkMenuItem" id="menuitem20">
-				<property name="visible">True</property>
-				<property name="label" translatable="yes">_Windows</property>
-				<property name="use_underline">True</property>
-				<child type="submenu">
-					<object class="GtkMenu" id="menu5">
-						<property name="visible">True</property>
-						<property name="ubuntu_local">True</property>
-						<child>
-							<object class="GtkMenuItem" id="menuitem21">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">_Maps</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="menuitem22">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">_Graphs</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="menuitem23">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">_Budget</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-						<child>
-							<object class="GtkMenuItem" id="menuitem24">
-								<property name="visible">True</property>
-								<property name="label" translatable="yes">_Evaluation</property>
-								<property name="use_underline">True</property>
-							</object>
-						</child>
-					</object>
-				</child>
-			</object>
-		</child>
-		<child>
-			<object class="GtkMenuItem" id="menuitem4">
-				<property name="visible">True</property>
-				<property name="label" translatable="yes">_Help</property>
-				<property name="use_underline">True</property>
-				<child type="submenu">
-					<object class="GtkMenu" id="menu3">
-						<property name="visible">True</property>
-						<property name="ubuntu_local">True</property>
-						<child>
-							<object class="GtkImageMenuItem" id="imagemenuitem10">
-								<property name="label">gtk-about</property>
-								<property name="visible">True</property>
-								<property name="use_underline">True</property>
-								<property name="use_stock">True</property>
-							</object>
-						</child>
-					</object>
-				</child>
-			</object>
-		</child>
-	</object>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkMenuBar" id="menuBar">
+    <property name="visible">True</property>
+    <property name="ubuntu_local">True</property>
+    <child>
+      <object class="GtkMenuItem" id="menuitem1">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">_File</property>
+        <property name="use_underline">True</property>
+        <child type="submenu">
+          <object class="GtkMenu" id="fileMenu">
+            <property name="visible">True</property>
+            <property name="ubuntu_local">True</property>
+            <child>
+              <object class="GtkImageMenuItem" id="imagemenuitem1">
+                <property name="label">gtk-new</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImageMenuItem" id="loadCityItem">
+                <property name="label">gtk-open</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImageMenuItem" id="imagemenuitem3">
+                <property name="label">gtk-save</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImageMenuItem" id="imagemenuitem4">
+                <property name="label">gtk-save-as</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparatorMenuItem" id="separatormenuitem1">
+                <property name="visible">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImageMenuItem" id="imagemenuitem5">
+                <property name="label">gtk-quit</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menuitem2">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">_Options</property>
+        <property name="use_underline">True</property>
+        <child type="submenu">
+          <object class="GtkMenu" id="menu2">
+            <property name="visible">True</property>
+            <property name="ubuntu_local">True</property>
+            <child>
+              <object class="GtkCheckMenuItem" id="imagemenuitem6">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Auto-Bull_doze</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckMenuItem" id="imagemenuitem7">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Auto-_Budget</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckMenuItem" id="imagemenuitem8">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Auto-_Goto</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckMenuItem" id="imagemenuitem9">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Music</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckMenuItem" id="menuitem5">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Sound Effects</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem6">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Sp_eed</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu1">
+                    <property name="visible">True</property>
+                    <property name="ubuntu_local">True</property>
+                    <child>
+                      <object class="GtkMenuItem" id="menuitem7">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Fastes_t</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="menuitem8">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">_Fast</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="menuitem9">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">_Average</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="menuitem10">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">_Slow</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="menuitem11">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">_Pause</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menuitem3">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">_Disasters</property>
+        <property name="use_underline">True</property>
+        <child type="submenu">
+          <object class="GtkMenu" id="menu4">
+            <property name="visible">True</property>
+            <property name="ubuntu_local">True</property>
+            <child>
+              <object class="GtkMenuItem" id="menuitem12">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Fire</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem13">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Flood</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem14">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Air Crash</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem15">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Tornado</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem16">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Earthquake</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem17">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Monster</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparatorMenuItem" id="menuitem18">
+                <property name="visible">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckMenuItem" id="menuitem19">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Disable</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menuitem20">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">_Windows</property>
+        <property name="use_underline">True</property>
+        <child type="submenu">
+          <object class="GtkMenu" id="menu5">
+            <property name="visible">True</property>
+            <property name="ubuntu_local">True</property>
+            <child>
+              <object class="GtkMenuItem" id="menuitem21">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Maps</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem22">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Graphs</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem23">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Budget</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem24">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Evaluation</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menuitem4">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">_Help</property>
+        <property name="use_underline">True</property>
+        <child type="submenu">
+          <object class="GtkMenu" id="menu3">
+            <property name="visible">True</property>
+            <property name="ubuntu_local">True</property>
+            <child>
+              <object class="GtkImageMenuItem" id="imagemenuitem10">
+                <property name="label">gtk-about</property>
+                <property name="visible">True</property>
+                <property name="use_underline">True</property>
+                <property name="use_stock">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
 </interface>
-
