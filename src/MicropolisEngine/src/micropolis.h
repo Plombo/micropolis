@@ -89,14 +89,11 @@
 
 #else
 
-#ifdef __APPLE__
-#include <sys/stat.h>
-#endif
-
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/file.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #endif
 
