@@ -1779,7 +1779,7 @@ public:
 
     void didntSaveCity(const char *msg);
 
-    void saveCityAs(const char *filename);
+    bool saveCityAs(const char *filename);
 
 
     ////////////////////////////////////////////////////////////////////////

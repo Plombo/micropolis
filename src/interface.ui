@@ -39,7 +39,7 @@
               </object>
             </child>
             <child>
-              <object class="GtkImageMenuItem" id="imagemenuitem4">
+              <object class="GtkImageMenuItem" id="saveCityAsItem">
                 <property name="label">gtk-save-as</property>
                 <property name="visible">True</property>
                 <property name="use_underline">True</property>

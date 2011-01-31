@@ -621,7 +621,7 @@ void Micropolis::didntSaveCity(const char *msg)
  *       Extract to a sub-function.
  * @bug Function fails if \c lastDot<lastSlash (ie with \c "x.y/bla" )
  */
-void Micropolis::saveCityAs(const char *filename)
+bool Micropolis::saveCityAs(const char *filename)
 {
     cityFileName = filename;
 
@@ -642,10 +642,12 @@ void Micropolis::saveCityAs(const char *filename)
         setCityName(newCityName);
 
         didSaveCity();
+        return true;
 
     } else {
 
         didntSaveCity(cityFileName.c_str());
+        return false;
 
     }
 }

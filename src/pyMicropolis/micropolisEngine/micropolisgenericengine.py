@@ -1006,7 +1006,7 @@ class MicropolisGenericEngine(micropolisengine.Micropolis):
         success = self.loadCity(saveFilePath)
 
         if not success:
-            raise Exception('Error loading city file')
+            raise IOError('Error loading city file')
 
         self.sendUpdate('load')
 
@@ -1027,7 +1027,7 @@ class MicropolisGenericEngine(micropolisengine.Micropolis):
         success = self.loadCity(saveFilePath)
         
         if not success:
-            raise Exception('Error loading city file')
+            raise IOError('Error loading city file')
         
         self.sendUpdate('load')
 
@@ -1038,6 +1038,7 @@ class MicropolisGenericEngine(micropolisengine.Micropolis):
         metaFileName = metaFileName or self.metaFileName
         saveFileName = self.saveFileName
         readOnly = self.readOnly
+        
 
         if not metaFileName:
             raise Exception('Undefined metaFileName')
@@ -1047,7 +1048,7 @@ class MicropolisGenericEngine(micropolisengine.Micropolis):
             self.readOnly = readOnly
             saveFileDir = os.path.expanduser('~/cities')
             self.saveFileDir = saveFileDir
-            os.makedirs(saveFileDir)
+            if not os.path.lexists(saveFileDir): os.makedirs(saveFileDir)
 
         baseName, ext = os.path.splitext(metaFileName)
 
@@ -1059,9 +1060,9 @@ class MicropolisGenericEngine(micropolisengine.Micropolis):
         success = self.saveCityAs(saveFilePath)
 
         if not success:
-            raise('Error writing to city file')
+            raise IOError('Error writing to city file')
 
-        xmlText = self.getMetaData(saveFileName)
+        xmlText = self.getMetaData()
 
         metaFilePath = os.path.join(saveFileDir, metaFileName)
 
@@ -1069,6 +1070,32 @@ class MicropolisGenericEngine(micropolisengine.Micropolis):
         print xmlText
         f.write(xmlText)
         f.close()
+
+	# save a plain .cty file without XML metadata in Micropolis/SimCity for UNIX/Macintosh format
+    def savePlainCity(self, metaFileName=None):
+
+        saveFileDir = self.saveFileDir
+        saveFileName = self.saveFileName
+        readOnly = self.readOnly
+
+        if readOnly or not saveFileDir:
+            readOnly = False
+            self.readOnly = readOnly
+            saveFileDir = os.path.expanduser('~/cities')
+            self.saveFileDir = saveFileDir
+            if not os.path.lexists(saveFileDir): os.makedirs(saveFileDir)
+
+        baseName, ext = os.path.splitext(metaFileName)
+
+        saveFileName = baseName + '.cty'
+        self.saveFileName = saveFileName
+
+        saveFilePath = os.path.join(saveFileDir, saveFileName)
+
+        success = self.saveCityAs(saveFilePath)
+
+        if not success:
+            raise IOError('Error writing to city file')
 
 
     def getMetaData(self):

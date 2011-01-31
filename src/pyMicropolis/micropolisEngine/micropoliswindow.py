@@ -102,7 +102,7 @@ import micropoliscontrolpanel
 
 
 ########################################################################
-# MicropolisPanelWindow
+# MicropolisPanedWindow
 
 class MicropolisPanedWindow(gtk.Window):
 
@@ -322,6 +322,9 @@ class MicropolisPanedWindow(gtk.Window):
         
         saveCityItem = builder.get_object('saveCityItem')
         saveCityItem.connect('activate', self.saveCityDialog)
+        
+        saveCityItem = builder.get_object('saveCityAsItem')
+        saveCityItem.connect('activate', self.saveCityAsDialog)
 
     def startGame(self):
 
@@ -398,7 +401,7 @@ class MicropolisPanedWindow(gtk.Window):
                 try:
                     self.engine.loadMetaCity(fileName)
                     result = True
-                except Exception, e:
+                except IOError, e:
                     print "FAILED TO LOAD META CITY", fileName
                     print str(e)
                     result = False
@@ -406,7 +409,7 @@ class MicropolisPanedWindow(gtk.Window):
                 try:
                     self.engine.loadPlainCity(fileName)
                     result = True
-                except Exception, e:
+                except IOError, e:
                     print 'FAILED TO LOAD CITY', fileName
                     print str(e)
                     result = False
@@ -455,13 +458,13 @@ class MicropolisPanedWindow(gtk.Window):
         dialog = gtk.AboutDialog()
         dialog.set_name('Micropolis')
         dialog.set_version(engine.getMicropolisVersion())
-        dialog.set_copyright('Copyright (C) 2009')
-        dialog.set_comments('Developed by the EduVerse project')
+        dialog.set_copyright('Copyright (C) 2009, 2011')
+        dialog.set_comments('Developed by the EduVerse project; forked by Bryan Cain')
         dialog.set_license('GPLv3')
         #dialog.set_wrap_license(???)
-        dialog.set_website('http://www.MicropolisOnline.com')
-        dialog.set_website_label('Micropolis Online')
-        dialog.set_authors(('Will Wright', 'Fred Haslam', 'Don Hopkins', '[AUTHORS...]',))
+        dialog.set_website('http://github.com/Plombo')
+        dialog.set_website_label('Forked Micropolis repository')
+        dialog.set_authors(('Will Wright', 'Fred Haslam', 'Don Hopkins', 'Bryan Cain', '[AUTHORS...]',))
         dialog.set_documenters(('[DOCUMENTERS...]',))
         dialog.set_artists(('[ARTISTS...]',))
         dialog.set_translator_credits('[TRANSLATORS...]')
@@ -473,14 +476,73 @@ class MicropolisPanedWindow(gtk.Window):
         dialog.destroy()
 
 
-    def saveCityDialog(self):
-        # @todo "Save city" dialog.
+    def saveCityDialog(self, button=None, data=None):
+        # @todo "Save city..." dialog.
         print "SAVE CITY DIALOG"
+        
 
-
-    def saveCityAsDialog(self):
-        # @todo "Save city as..." dialog.
+    def saveCityAsDialog(self, button=None, data=None):
         print "SAVE CITY AS DIALOG"
+        
+        dialog = gtk.FileChooserDialog(
+            title='Select the file to save.',
+            action=gtk.FILE_CHOOSER_ACTION_SAVE,
+            buttons=(
+                gtk.STOCK_CANCEL,
+                gtk.RESPONSE_CANCEL,
+                gtk.STOCK_SAVE,
+                gtk.RESPONSE_OK,
+            ))
+        
+        xmlFilter = gtk.FileFilter()
+        xmlFilter.set_name("Micropolis City (*.xml)")
+        xmlFilter.add_pattern("*.xml")
+        dialog.add_filter(xmlFilter)
+        dialog.set_filter(xmlFilter)
+        
+        unixCtyFilter = gtk.FileFilter()
+        unixCtyFilter.set_name("Micropolis/SimCity for UNIX/Macintosh City (*.cty)")
+        unixCtyFilter.add_pattern("*.cty")
+        dialog.add_filter(unixCtyFilter)
+        
+        winCtyFilter = gtk.FileFilter()
+        winCtyFilter.set_name("SimCity for Windows/DOS/Amiga City (*.cty)")
+        winCtyFilter.add_pattern("*.cty")
+        dialog.add_filter(winCtyFilter)
+
+        citiesFolder = 'cities'
+        dialog.set_current_folder(citiesFolder)
+
+        response = dialog.run()
+        if response == gtk.RESPONSE_OK:
+            fileName = dialog.get_filename()
+            filter = dialog.get_filter()
+            print "FILENAME", fileName
+            result = False
+            if filter == xmlFilter:
+                try:
+                    self.engine.saveMetaCity(fileName)
+                    result = True
+                except IOError, e:
+                    print "FAILED TO SAVE META CITY", fileName
+                    print str(e)
+                    result = False
+            elif filter == unixCtyFilter:
+                try:
+                    self.engine.savePlainCity(fileName)
+                    result = True
+                except IOError, e:
+                    print 'FAILED TO SAVE CITY', fileName
+                    print str(e)
+                    result = False
+            # TODO: Windows/DOS/Amiga city exporting
+            else:
+                print "ERROR: file '%s' is not a CTY or XML file"
+                result = False
+            print "RESULT", result
+        elif response == gtk.RESPONSE_CANCEL:
+            print 'Closed, no files selected'
+        dialog.destroy()
 
 
     def newCityDialog(self):
