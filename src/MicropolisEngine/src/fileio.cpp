@@ -346,14 +346,31 @@ bool Micropolis::loadFile(const char *filename)
  * @param filename Name of the file to use for storing the game.
  * @return The game was saved successfully.
  */
-bool Micropolis::saveFile(const char *filename)
+bool Micropolis::saveFile(const char *filename, bool scw)
 {
     long n;
     FILE *f;
+    bool result;
 
     if ((f = fopen(filename, "wb")) == NULL) {
         /// @todo Report error saving file.
         return false;
+    }
+    
+    if (scw) {
+        char buf[128];
+        memset(buf, 0, sizeof(buf));
+        result = 
+            fwrite(buf, 128L, 1, f) &&
+            fseek(f, 2L, SEEK_SET) == 0 &&
+            fwrite(filename, strlen(filename)+1, 1, f) &&
+            fseek(f, 65L, SEEK_SET) == 0 &&
+            fwrite("CITYMCRP", sizeof("CITYMCRP"), 1, f) &&
+            fseek(f, 128L, SEEK_SET) == 0;
+        if (!result) {
+            fclose(f);
+            return false;
+        }
     }
 
     /* total funds is a long.....    miscHist is array of ints */
@@ -389,7 +406,7 @@ bool Micropolis::saveFile(const char *filename)
     HALF_SWAP_LONGS(&n, 1);
     (*(Quad *)(miscHist + 62)) = n;
 
-    bool result =
+    result =
         save_short(resHist, HISTORY_LENGTH / 2, f) &&
         save_short(comHist, HISTORY_LENGTH / 2, f) &&
         save_short(indHist, HISTORY_LENGTH / 2, f) &&
@@ -577,7 +594,7 @@ void Micropolis::saveCity()
         doSaveCityAs();
 
     } else {
-        if (saveFile(cityFileName.c_str())) {
+        if (saveFile(cityFileName.c_str(), false)) {
 
             didSaveCity();
 
@@ -617,15 +634,17 @@ void Micropolis::didntSaveCity(const char *msg)
 /**
  * Save the city under a new name (?)
  * @param filename Name of the file to use for storing the game.
+ * @param scw True if the file should be saved in SimCity for Windows/DOS/Amiga 
+ *        format; false otherwise.
  * @todo String normalization code is duplicated in Micropolis::loadCity().
  *       Extract to a sub-function.
  * @bug Function fails if \c lastDot<lastSlash (ie with \c "x.y/bla" )
  */
-bool Micropolis::saveCityAs(const char *filename)
+bool Micropolis::saveCityAs(const char *filename, bool scw)
 {
     cityFileName = filename;
 
-    if (saveFile(cityFileName.c_str())) {
+    if (saveFile(cityFileName.c_str(), scw)) {
 
         unsigned int lastDot = cityFileName.find_last_of('.');
         unsigned int lastSlash = cityFileName.find_last_of('/');

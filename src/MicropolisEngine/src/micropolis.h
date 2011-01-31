@@ -1759,7 +1759,7 @@ public:
 
     bool loadFile(const char *filename);
 
-    bool saveFile(const char *filename);
+    bool saveFile(const char *filename, bool scw);
 
     void loadScenario(Scenario s);
 
@@ -1779,7 +1779,7 @@ public:
 
     void didntSaveCity(const char *msg);
 
-    bool saveCityAs(const char *filename);
+    bool saveCityAs(const char *filename, bool scw);
 
 
     ////////////////////////////////////////////////////////////////////////

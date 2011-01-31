@@ -1071,8 +1071,8 @@ class MicropolisGenericEngine(micropolisengine.Micropolis):
         f.write(xmlText)
         f.close()
 
-	# save a plain .cty file without XML metadata in Micropolis/SimCity for UNIX/Macintosh format
-    def savePlainCity(self, metaFileName=None):
+	# save a plain .cty file without XML metadata
+    def savePlainCity(self, metaFileName=None, scw=False):
 
         saveFileDir = self.saveFileDir
         saveFileName = self.saveFileName
@@ -1092,7 +1092,7 @@ class MicropolisGenericEngine(micropolisengine.Micropolis):
 
         saveFilePath = os.path.join(saveFileDir, saveFileName)
 
-        success = self.saveCityAs(saveFilePath)
+        success = self.saveCityAs(saveFilePath, scw)
 
         if not success:
             raise IOError('Error writing to city file')

@@ -529,13 +529,20 @@ class MicropolisPanedWindow(gtk.Window):
                     result = False
             elif filter == unixCtyFilter:
                 try:
-                    self.engine.savePlainCity(fileName)
+                    self.engine.savePlainCity(fileName, False)
                     result = True
                 except IOError, e:
                     print 'FAILED TO SAVE CITY', fileName
                     print str(e)
                     result = False
-            # TODO: Windows/DOS/Amiga city exporting
+            elif filter == winCtyFilter:
+                try:
+                    self.engine.savePlainCity(fileName, True)
+                    result = True
+                except IOError, e:
+                    print 'FAILED TO SAVE CITY', fileName
+                    print str(e)
+                    result = False
             else:
                 print "ERROR: file '%s' is not a CTY or XML file"
                 result = False
