@@ -205,6 +205,7 @@ bool Micropolis::loadFileDir(const char *filename, const char *dir)
     char *path = NULL;
     FILE *f;
     Quad size;
+    bool result = true;
 
     // If needed, construct a path to the file.
     if (dir != NULL) {
@@ -228,18 +229,26 @@ bool Micropolis::loadFileDir(const char *filename, const char *dir)
 
     fseek(f, 0L, SEEK_END);
     size = ftell(f);
-    fseek(f, 0L, SEEK_SET);
-
-    bool result =
-      (size == 27120) &&
-      load_short(resHist, HISTORY_LENGTH / sizeof(short), f) &&
-      load_short(comHist, HISTORY_LENGTH / sizeof(short), f) &&
-      load_short(indHist, HISTORY_LENGTH / sizeof(short), f) &&
-      load_short(crimeHist, HISTORY_LENGTH / sizeof(short), f) &&
-      load_short(pollutionHist, HISTORY_LENGTH / sizeof(short), f) &&
-      load_short(moneyHist, HISTORY_LENGTH / sizeof(short), f) &&
-      load_short(miscHist, MISC_HISTORY_LENGTH / sizeof(short), f) &&
-      load_short(((short *)&map[0][0]), WORLD_W * WORLD_H, f);
+    
+    if(size == 27120)
+        fseek(f, 0L, SEEK_SET);
+    else if(size == 27264)
+        fseek(f, 128L, SEEK_SET);
+    else
+        result = false;
+	
+	if(result)
+    {
+	    result =
+	      load_short(resHist, HISTORY_LENGTH / sizeof(short), f) &&
+	      load_short(comHist, HISTORY_LENGTH / sizeof(short), f) &&
+	      load_short(indHist, HISTORY_LENGTH / sizeof(short), f) &&
+	      load_short(crimeHist, HISTORY_LENGTH / sizeof(short), f) &&
+	      load_short(pollutionHist, HISTORY_LENGTH / sizeof(short), f) &&
+	      load_short(moneyHist, HISTORY_LENGTH / sizeof(short), f) &&
+	      load_short(miscHist, MISC_HISTORY_LENGTH / sizeof(short), f) &&
+	      load_short(((short *)&map[0][0]), WORLD_W * WORLD_H, f);
+	}
 
     fclose(f);
 

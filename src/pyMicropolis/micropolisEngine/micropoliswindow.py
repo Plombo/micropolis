@@ -362,15 +362,16 @@ class MicropolisPanedWindow(gtk.Window):
                 gtk.RESPONSE_OK,
             ))
        
-        filter = gtk.FileFilter()
-        filter.set_name("Micropolis Cities")
-        filter.add_pattern("*.xml")
-        dialog.add_filter(filter)
+        xmlFilter = gtk.FileFilter()
+        xmlFilter.set_name("Micropolis Cities")
+        xmlFilter.add_pattern("*.xml")
+        dialog.add_filter(xmlFilter)
         
-        filter = gtk.FileFilter()
-        filter.set_name("SimCity Cities")
-        filter.add_pattern("*.cty")
-        dialog.add_filter(filter)
+        ctyFilter = gtk.FileFilter()
+        ctyFilter.set_name("SimCity Cities")
+        ctyFilter.add_pattern("*.cty")
+        ctyFilter.add_pattern("*.CTY")
+        dialog.add_filter(ctyFilter)
 
         citiesFolder = 'cities'
         dialog.set_current_folder(citiesFolder)
@@ -382,7 +383,7 @@ class MicropolisPanedWindow(gtk.Window):
             print "FILENAME", fileName
             print "FILE TYPE", filterName
             result = False
-            if filterName == 'Micropolis Cities':
+            if fileName.endswith('.xml'):
                 try:
                     self.engine.loadMetaCity(fileName)
                     result = True
@@ -390,9 +391,12 @@ class MicropolisPanedWindow(gtk.Window):
                     print "FAILED TO LOAD META CITY", fileName
                     print str(e)
                     result = False
-            elif filterName == 'SimCity Cities':
+            elif fileName.lower().endswith('.cty'):
                 result = self.engine.loadCity(fileName)
                 if not result: print 'FAILED TO LOAD CITY', fileName
+            else:
+                print "ERROR: file '%s' is not a CTY or XML file"
+                result = False
             print "RESULT", result
         elif response == gtk.RESPONSE_CANCEL:
             print 'Closed, no files selected'
