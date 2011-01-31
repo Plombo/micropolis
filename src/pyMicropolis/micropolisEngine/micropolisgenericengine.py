@@ -977,6 +977,59 @@ class MicropolisGenericEngine(micropolisengine.Micropolis):
             raise Exception('Error loading city file')
 
         self.sendUpdate('load')
+    
+    
+    def loadMetaCity(self, metaFilePath):
+
+        doc = xml.dom.minidom.parse(metaFilePath)
+        el = doc.firstChild
+        if el.nodeName != 'metaCity':
+            raise Exception("Expected top level 'metaCity' element in meta city file")
+
+        saveFileDir, metaFileName = os.path.split(os.path.abspath(metaFilePath))
+        saveFileName = GetSubElementText(el, u'saveFileName', None)
+        title = GetSubElementText(el, u'title', '')
+        description = GetSubElementText(el, u'description', '')
+        readOnly = GetSubElementBool(el, u'readOnly', False)
+
+        self.saveFileDir = saveFileDir
+        self.metaFileName = metaFileName
+        self.saveFileName = saveFileName
+        self.title = title
+        self.description = description
+        self.readOnly = readOnly
+
+        saveFilePath = os.path.join(saveFileDir, saveFileName)
+
+        saveFilePath = saveFilePath.encode('utf8')
+        #print "Loading city file:", saveFilePath
+        success = self.loadCity(saveFilePath)
+
+        if not success:
+            raise Exception('Error loading city file')
+
+        self.sendUpdate('load')
+
+
+    # load a city from the original SimCity without XML metadata
+    def loadPlainCity(self, saveFilePath):
+        
+        saveFileDir, saveFileName = os.path.split(os.path.abspath(saveFilePath))
+        self.saveFileDir = saveFileDir
+        self.metaFileName = None
+        self.saveFileName = saveFileName
+        self.title = saveFileName[0:saveFileName.lower().index('.cty')]
+        self.description = 'A city imported from the original SimCity.'
+        self.readOnly = False
+        
+        saveFilePath = saveFilePath.encode('utf8')
+        #print "Loading city file:", saveFilePath
+        success = self.loadCity(saveFilePath)
+        
+        if not success:
+            raise Exception('Error loading city file')
+        
+        self.sendUpdate('load')
 
 
     def saveMetaCity(self, metaFileName=None):

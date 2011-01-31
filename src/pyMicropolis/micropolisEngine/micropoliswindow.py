@@ -319,6 +319,9 @@ class MicropolisPanedWindow(gtk.Window):
         
         loadCityItem = builder.get_object('loadCityItem')
         loadCityItem.connect('activate', self.loadCityDialog)
+        
+        saveCityItem = builder.get_object('saveCityItem')
+        saveCityItem.connect('activate', self.saveCityDialog)
 
     def startGame(self):
 
@@ -361,17 +364,25 @@ class MicropolisPanedWindow(gtk.Window):
                 gtk.STOCK_OPEN,
                 gtk.RESPONSE_OK,
             ))
-       
+        
         xmlFilter = gtk.FileFilter()
-        xmlFilter.set_name("Micropolis Cities")
+        xmlFilter.set_name("Micropolis Cities (*.xml)")
         xmlFilter.add_pattern("*.xml")
         dialog.add_filter(xmlFilter)
         
         ctyFilter = gtk.FileFilter()
-        ctyFilter.set_name("SimCity Cities")
+        ctyFilter.set_name("SimCity Cities (*.cty)")
         ctyFilter.add_pattern("*.cty")
         ctyFilter.add_pattern("*.CTY")
         dialog.add_filter(ctyFilter)
+        
+        allFilter = gtk.FileFilter()
+        allFilter.set_name("All Cities (*.xml, *.cty)")
+        allFilter.add_pattern("*.xml")
+        allFilter.add_pattern("*.cty")
+        allFilter.add_pattern("*.CTY")
+        dialog.add_filter(allFilter)
+        dialog.set_filter(allFilter)
 
         citiesFolder = 'cities'
         dialog.set_current_folder(citiesFolder)
@@ -392,8 +403,13 @@ class MicropolisPanedWindow(gtk.Window):
                     print str(e)
                     result = False
             elif fileName.lower().endswith('.cty'):
-                result = self.engine.loadCity(fileName)
-                if not result: print 'FAILED TO LOAD CITY', fileName
+                try:
+                    self.engine.loadPlainCity(fileName)
+                    result = True
+                except Exception, e:
+                    print 'FAILED TO LOAD CITY', fileName
+                    print str(e)
+                    result = False
             else:
                 print "ERROR: file '%s' is not a CTY or XML file"
                 result = False
