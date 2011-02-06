@@ -232,7 +232,7 @@ bool Micropolis::loadFileDir(const char *filename, const char *dir)
     
     if(size == 27120)
         fseek(f, 0L, SEEK_SET);
-    else if(size == 27264)
+    else if(size == 27248 || size == 27264)
         fseek(f, 128L, SEEK_SET);
     else
         result = false;
