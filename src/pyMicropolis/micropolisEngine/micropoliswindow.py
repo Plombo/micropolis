@@ -99,6 +99,7 @@ import micropolisbudgetpanel
 import micropolismappanel
 import micropolisdisasterspanel
 import micropoliscontrolpanel
+import micropolisevaluationdialog
 
 
 ########################################################################
@@ -325,6 +326,9 @@ class MicropolisPanedWindow(gtk.Window):
         
         saveCityItem = builder.get_object('saveCityAsItem')
         saveCityItem.connect('activate', self.saveCityAsDialog)
+        
+        evaluationItem = builder.get_object('evaluationItem')
+        evaluationItem.connect('activate', self.evaluationDialog)
 
     def startGame(self):
 
@@ -562,6 +566,16 @@ class MicropolisPanedWindow(gtk.Window):
         # @todo "Are you sure you want to quit?" dialog.
         print "QUIT DIALOG"
 
+    def evaluationDialog(self, button=None, data=None):
+        print "EVALUATION DIALOG"
+        
+        micropolisevaluationdialog.setupEvaluationDialog(self.engine, self.builder)
+        
+        evalDialog = self.builder.get_object('evaluationDialog')
+        evalDialog.set_title('City Evaluation for ' + str(self.engine.cityYear))
+        evalDialog.run()
+        evalDialog.hide()
+        
 
     def centerOnTileHandler(
         self,
