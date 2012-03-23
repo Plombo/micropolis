@@ -1109,14 +1109,10 @@ class TileDrawingArea(gtk.DrawingArea):
 
         # TODO: This might be handled by the pan tool.
         if self.zoomable:
-            if key == ord('i'):
+            if key == ord('=') or key == ord('+'):
                 self.changeScale(self.scale * 1.1)
-            elif key == ord('I'):
-                self.changeScale(self.scale * 2.0)
-            elif key == ord('o'):
-                self.changeScale(self.scale * 0.9)
-            elif key == ord('O'):
-                self.changeScale(self.scale * 0.5)
+            elif key == ord('-'):
+                self.changeScale(self.scale / 1.1)
             elif key == ord('r'):
                 self.changeScale(1.0)
 

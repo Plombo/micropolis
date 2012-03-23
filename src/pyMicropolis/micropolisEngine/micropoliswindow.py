@@ -317,18 +317,25 @@ class MicropolisPanedWindow(gtk.Window):
         print "SET CALLBACKS: micropoliswindow"
         
         builder = self.builder
+        accelGroup = gtk.AccelGroup()
         
         loadCityItem = builder.get_object('loadCityItem')
         loadCityItem.connect('activate', self.loadCityDialog)
+        loadCityItem.add_accelerator('activate', accelGroup, ord('o'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
         
         saveCityItem = builder.get_object('saveCityItem')
         saveCityItem.connect('activate', self.saveCityDialog)
+        saveCityItem.add_accelerator('activate', accelGroup, ord('s'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
         
-        saveCityItem = builder.get_object('saveCityAsItem')
-        saveCityItem.connect('activate', self.saveCityAsDialog)
+        saveCityAsItem = builder.get_object('saveCityAsItem')
+        saveCityAsItem.connect('activate', self.saveCityAsDialog)
+        saveCityAsItem.add_accelerator('activate', accelGroup, ord('s'), gtk.gdk.SHIFT_MASK | gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
         
         evaluationItem = builder.get_object('evaluationItem')
         evaluationItem.connect('activate', self.evaluationDialog)
+        evaluationItem.add_accelerator('activate', accelGroup, ord('u'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+        
+        self.add_accel_group(accelGroup)
 
     def startGame(self):
 
