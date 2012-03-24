@@ -97,7 +97,6 @@ import micropolisevaluationpanel
 import micropolishistorypanel
 import micropolisbudgetpanel
 import micropolismappanel
-import micropolisdisasterspanel
 import micropoliscontrolpanel
 import micropolisevaluationdialog
 
@@ -220,11 +219,6 @@ class MicropolisPanedWindow(gtk.Window):
         self.mapPanel = mapPanel
         notebook1.addLabelTab('Map', mapPanel)
 
-        disastersPanel = micropolisdisasterspanel.MicropolisDisastersPanel(
-            engine=engine)
-        self.disastersPanel = disastersPanel
-        notebook1.addLabelTab('Disasters', disastersPanel)
-
         controlPanel = micropoliscontrolpanel.MicropolisControlPanel(
             engine=engine,
             target=self)
@@ -317,6 +311,7 @@ class MicropolisPanedWindow(gtk.Window):
         print "SET CALLBACKS: micropoliswindow"
         
         builder = self.builder
+        engine = self.engine
         accelGroup = gtk.AccelGroup()
         
         loadCityItem = builder.get_object('loadCityItem')
@@ -334,6 +329,13 @@ class MicropolisPanedWindow(gtk.Window):
         evaluationItem = builder.get_object('evaluationItem')
         evaluationItem.connect('activate', self.evaluationDialog)
         evaluationItem.add_accelerator('activate', accelGroup, ord('u'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+        
+        builder.get_object('fireItem').connect('activate', lambda item: engine.setFire())
+        builder.get_object('floodItem').connect('activate', lambda item: engine.makeFlood())
+        builder.get_object('tornadoItem').connect('activate', lambda item: engine.makeTornado())
+        builder.get_object('earthquakeItem').connect('activate', lambda item: engine.makeEarthquake())
+        builder.get_object('monsterItem').connect('activate', lambda item: engine.makeMonster())
+        builder.get_object('meltdownItem').connect('activate', lambda item: engine.makeMeltdown())
         
         self.add_accel_group(accelGroup)
 

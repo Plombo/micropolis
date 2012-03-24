@@ -169,44 +169,51 @@
             <property name="visible">True</property>
             <property name="ubuntu_local">True</property>
             <child>
-              <object class="GtkMenuItem" id="menuitem12">
+              <object class="GtkMenuItem" id="fireItem">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Fire</property>
                 <property name="use_underline">True</property>
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="menuitem13">
+              <object class="GtkMenuItem" id="floodItem">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Flood</property>
                 <property name="use_underline">True</property>
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="menuitem14">
+              <object class="GtkMenuItem" id="airCrashItem">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Air Crash</property>
                 <property name="use_underline">True</property>
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="menuitem15">
+              <object class="GtkMenuItem" id="tornadoItem">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Tornado</property>
                 <property name="use_underline">True</property>
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="menuitem16">
+              <object class="GtkMenuItem" id="earthquakeItem">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Earthquake</property>
                 <property name="use_underline">True</property>
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="menuitem17">
+              <object class="GtkMenuItem" id="monsterItem">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Monster</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="meltdownItem">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Meltdown</property>
                 <property name="use_underline">True</property>
               </object>
             </child>
