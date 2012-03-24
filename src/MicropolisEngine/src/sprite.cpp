@@ -973,6 +973,24 @@ void Micropolis::doShipSprite(SimSprite *sprite)
     }
 }
 
+/* Makes an airplane crash - the current airplane if there is one, or at a 
+ * location otherwise - that starts a fire. */
+void Micropolis::makeAirCrash()
+{
+#ifndef NO_AIRCRASH
+    if (getSprite(SPRITE_AIRPLANE) == NULL) {
+        short x, y;
+
+        x = getRandom(WORLD_W - 20) + 10;
+        y = getRandom(WORLD_H - 10) + 5;
+
+        generatePlane(Position(x, y));
+    }
+
+    explodeSprite(getSprite(SPRITE_AIRPLANE));
+#endif
+}
+
 
 /**
  * Move monster sprite.

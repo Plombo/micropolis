@@ -332,6 +332,7 @@ class MicropolisPanedWindow(gtk.Window):
         
         builder.get_object('fireItem').connect('activate', lambda item: engine.setFire())
         builder.get_object('floodItem').connect('activate', lambda item: engine.makeFlood())
+        builder.get_object('airCrashItem').connect('activate', lambda item: engine.makeAirCrash())
         builder.get_object('tornadoItem').connect('activate', lambda item: engine.makeTornado())
         builder.get_object('earthquakeItem').connect('activate', lambda item: engine.makeEarthquake())
         builder.get_object('monsterItem').connect('activate', lambda item: engine.makeMonster())

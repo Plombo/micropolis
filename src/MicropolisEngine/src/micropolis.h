@@ -2474,6 +2474,8 @@ public:
 
     void makeShipHere(int x, int y);
 
+    void makeAirCrash();
+
     void makeMonster();
 
     void makeMonsterAt(int x, int y);

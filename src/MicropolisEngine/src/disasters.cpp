@@ -122,6 +122,9 @@ void Micropolis::doDisasters()
                 // 1/9 chance nothing happens (was airplane crash,
                 // which EA removed after 9/11, and requested it be
                 // removed from this code)
+#ifndef NO_AIRCRASH
+                makeAirCrash();
+#endif
                 break;
 
             case 5:
