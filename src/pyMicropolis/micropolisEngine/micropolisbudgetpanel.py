@@ -74,6 +74,7 @@ import cairo
 import pango
 import micropolisengine
 import micropolisview
+import sys, traceback
 
 
 ########################################################################
@@ -279,7 +280,8 @@ class MicropolisBudgetPanel(gtk.Frame):
         name,
         *args):
 
-        #print "MicropolisBudgetPanel update", name, args
+        print "MicropolisBudgetPanel update", name, args
+        traceback.print_stack()
 
         engine = self.engine
 

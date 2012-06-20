@@ -99,6 +99,7 @@ import micropolisbudgetpanel
 import micropolismappanel
 import micropoliscontrolpanel
 import micropolisevaluationdialog
+import micropolisbudgetdialog
 
 
 ########################################################################
@@ -225,6 +226,10 @@ class MicropolisPanedWindow(gtk.Window):
         self.controlPanel = controlPanel
         notebook1.addLabelTab('Control', controlPanel)
 
+        # Dialog Managers
+
+        #self.budgetDialogManager = micropolisbudgetdialog.MicropolisBudgetDialogManager(engine, self.builder)
+
         # Panes
 
         vpaned1 = gtk.VPaned()
@@ -329,6 +334,10 @@ class MicropolisPanedWindow(gtk.Window):
         evaluationItem = builder.get_object('evaluationItem')
         evaluationItem.connect('activate', self.evaluationDialog)
         evaluationItem.add_accelerator('activate', accelGroup, ord('u'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+        
+        budgetItem = builder.get_object('budgetItem')
+        #budgetItem.connect('activate', self.budgetDialogManager.showDialog)
+        budgetItem.add_accelerator('activate', accelGroup, ord('b'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
         
         builder.get_object('fireItem').connect('activate', lambda item: engine.setFire())
         builder.get_object('floodItem').connect('activate', lambda item: engine.makeFlood())
