@@ -338,6 +338,12 @@ class MicropolisPanedWindow(gtk.Window):
         builder.get_object('monsterItem').connect('activate', lambda item: engine.makeMonster())
         builder.get_object('meltdownItem').connect('activate', lambda item: engine.makeMeltdown())
         
+        builder.get_object('pauseItem').connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(0))
+        builder.get_object('turtleItem').connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(2))
+        builder.get_object('llamaItem').connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(3))
+        builder.get_object('cheetahItem').connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(4))
+        builder.get_object('africanSwallowItem').connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(7))
+        
         self.add_accel_group(accelGroup)
 
     def startGame(self):

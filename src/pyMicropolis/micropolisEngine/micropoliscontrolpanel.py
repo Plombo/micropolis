@@ -89,12 +89,12 @@ class MicropolisControlPanel(gtk.Frame):
         # Speed, Passes, Label
         (0, 0, 'Paused',),
         (1, 1, 'Ultra Slow',),
-        (2, 1, 'Very Slow',),
-        (3, 1, 'Slow',),
-        (3, 5, 'Medium',),
+        (2, 1, 'Very Slow',), # Turtle
+        (3, 1, 'Slow',), # Llama
+        (3, 5, 'Medium',), # Cheetah
         (3, 10, 'Fast',),
         (3, 50, 'Very Fast',),
-        (3, 100, 'Ultra Fast',),
+        (3, 100, 'Ultra Fast',), # African Swallow
         (3, 500, 'Ridiculously Fast',),
         (3, 1000, 'Outrageously Fast',),
         (3, 5000, 'Astronomically Fast',),
