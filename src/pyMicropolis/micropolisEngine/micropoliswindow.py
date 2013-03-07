@@ -343,11 +343,25 @@ class MicropolisPanedWindow(gtk.Window):
         builder.get_object('monsterItem').connect('activate', lambda item: engine.makeMonster())
         builder.get_object('meltdownItem').connect('activate', lambda item: engine.makeMeltdown())
         
-        builder.get_object('pauseItem').connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(0))
-        builder.get_object('turtleItem').connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(2))
-        builder.get_object('llamaItem').connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(3))
-        builder.get_object('cheetahItem').connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(4))
-        builder.get_object('africanSwallowItem').connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(7))
+        pauseItem = builder.get_object('pauseItem')
+        pauseItem.connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(0))
+        pauseItem.add_accelerator('activate', accelGroup, ord('0'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+
+        turtleItem = builder.get_object('turtleItem')
+        turtleItem.connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(2))
+        turtleItem.add_accelerator('activate', accelGroup, ord('1'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+
+        llamaItem = builder.get_object('llamaItem')
+        llamaItem.connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(3))
+        llamaItem.add_accelerator('activate', accelGroup, ord('2'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+
+        cheetahItem = builder.get_object('cheetahItem')
+        cheetahItem.connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(4))
+        cheetahItem.add_accelerator('activate', accelGroup, ord('3'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+
+        africanSwallowItem = builder.get_object('africanSwallowItem')
+        africanSwallowItem.connect('activate', lambda item: self.controlPanel.scaleSpeed.set_value(7))
+        africanSwallowItem.add_accelerator('activate', accelGroup, ord('4'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
         
         self.add_accel_group(accelGroup)
 
