@@ -99,6 +99,7 @@ import micropolisbudgetpanel
 import micropolismappanel
 import micropoliscontrolpanel
 import micropolisevaluationdialog
+import micropolisbudgetdialog
 
 
 ########################################################################
@@ -329,6 +330,10 @@ class MicropolisPanedWindow(gtk.Window):
         evaluationItem = builder.get_object('evaluationItem')
         evaluationItem.connect('activate', self.evaluationDialog)
         evaluationItem.add_accelerator('activate', accelGroup, ord('u'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+        
+        budgetItem = builder.get_object('budgetItem')
+        budgetItem.connect('activate', self.budgetDialog)
+        budgetItem.add_accelerator('activate', accelGroup, ord('b'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
         
         builder.get_object('fireItem').connect('activate', lambda item: engine.setFire())
         builder.get_object('floodItem').connect('activate', lambda item: engine.makeFlood())
@@ -581,6 +586,18 @@ class MicropolisPanedWindow(gtk.Window):
     def quitDialog(self):
         # @todo "Are you sure you want to quit?" dialog.
         print "QUIT DIALOG"
+
+    def budgetDialog(self, button=None, data=None):
+        print "BUDGET DIALOG"
+
+        alreadyPaused = self.engine.simPaused
+        self.engine.simPaused = True
+        self.engine.update('paused')
+        budgetDialog = micropolisbudgetdialog.MicropolisBudgetDialog(self.engine, self.builder)
+        budgetDialog.run()
+        budgetDialog.hide()
+        self.engine.simPaused = alreadyPaused
+        self.engine.update('paused')
 
     def evaluationDialog(self, button=None, data=None):
         print "EVALUATION DIALOG"
