@@ -65,16 +65,17 @@ PYTHONBUILDDIR=$(shell python -c 'from distutils import sysconfig, util ; \
 	print "lib.%s-%s" \
 		% (util.get_platform(), sysconfig.get_config_var("VERSION"))')
 
-.PHONY: all build_tileEngine build_cellEngine doxygen
+.PHONY: all build_glTileEngine build_tileEngine build_cellEngine doxygen
 
 # ----------------------------------------------------------------------
 
-all: build_tileEngine build_cellEngine build_micropolisEngine
+all: build_tileEngine build_glTileEngine build_cellEngine build_micropolisEngine
 
 clean:
 	rm -rf *~ *.suo *.ncb *.pyc *.pyo build 
 	echo DISABLED rm -rf html doxygen_warnings
 	cd TileEngine ; make clean
+	cd GLTileEngine ; make clean
 	cd CellEngine ; make clean
 	cd MicropolisEngine ; make clean
 	cd pyMicropolis ; make clean
@@ -82,6 +83,7 @@ clean:
 install: all
 	echo "MicropolisCore install disabled for development."
 	cd TileEngine ; make install
+	cd GLTileEngine ; make install
 	cd CellEngine ; make install
 	cd MicropolisEngine ; make install
 
@@ -104,6 +106,16 @@ build_tileEngine:
 	$(MAKE) -C TileEngine build_python
 	cp TileEngine/objs/tileengine.py $(TILEENGINEDEST)
 	cp TileEngine/objs/$(PYTHONBUILDDIR)/_tileengine.so $(TILEENGINEDEST)
+
+# ----------------------------------------------------------------------
+# build/install glTileEngine
+
+GLTILEENGINEDEST = pyMicropolis/glTileEngine
+
+build_glTileEngine:
+	$(MAKE) -C GLTileEngine build_python
+	cp GLTileEngine/objs/gltileengine.py $(GLTILEENGINEDEST)
+	cp GLTileEngine/objs/$(PYTHONBUILDDIR)/_gltileengine.so $(GLTILEENGINEDEST)
 
 # ----------------------------------------------------------------------
 # build/install cellEngine

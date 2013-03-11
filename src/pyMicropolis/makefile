@@ -68,6 +68,7 @@ all:
 clean:
 	rm -rf *~ *.pyc *.pyd *.so */?*~ */*.pyc */*.pyd */*.so \
 		tileEngine/tileengine.py \
+		glTileEngine/gltileengine.py \
 		cellEngine/cellengine.py \
 		micropolisEngine/micropolisengine.py
 

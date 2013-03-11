@@ -75,6 +75,7 @@ import cairo
 import math
 import array
 import os
+import array
 
 
 ########################################################################
@@ -83,6 +84,7 @@ import os
 
 from pyMicropolis.tileEngine import tileengine
 from pyMicropolis.tileEngine import tiletool
+from pyMicropolis.glTileEngine import gltileengine, bytearray
 
 
 ########################################################################
@@ -195,6 +197,9 @@ class TileDrawingArea(gtk.DrawingArea):
         self.trackingToolTrigger = None
 
         self.tilesLoaded = False
+
+        self.gltengine = None
+        self.mapBuffer = None
 
         self.createEngine()
 
@@ -528,6 +533,19 @@ class TileDrawingArea(gtk.DrawingArea):
 
         return False
 
+    def drawBuffer(self, buf, ctxWindow, ctxWindowBuffer, w, h):
+        # FIXME we're not drawing the BG outside of the tile area
+        stride = cairo.ImageSurface.format_stride_for_width(cairo.FORMAT_ARGB32, w)
+        mapSurface = cairo.ImageSurface.create_for_data(buf, cairo.FORMAT_ARGB32, w, h, stride)
+        ctxWindowBuffer.set_source_surface(mapSurface, 0, 0)
+        ctxWindowBuffer.paint()
+        self.drawOverlays(ctxWindowBuffer)
+
+        ctxWindow.set_source_surface(
+            self.windowBuffer,
+            0,
+            0)
+        ctxWindow.paint()
 
     def draw(
         self,
@@ -648,6 +666,25 @@ class TileDrawingArea(gtk.DrawingArea):
             self.bufferWidth = bufferWidth
             self.bufferHeight = bufferHeight
 
+        # alternate code paths for rendering the minimap and main city display
+        # XXX: move these outside of this function (and this class)
+        if self.mapBuffer:
+            # TODO replace 120 with WORLD_W and 100 with WORLD_H
+            gltileengine.renderMap(self.engine.getMapBuffer(), self.mapBuffer.array)
+            self.drawBuffer(self.mapBuffer, ctxWindow, ctxWindowBuffer, 120, 100)
+            return
+        if self.gltengine:
+            if winHeight != self.lastHeight or winWidth != self.lastWidth:
+                self.tileBuffer = bytearray.ByteArray('B', [0]*(winHeight*winWidth*4))
+                self.lastWidth = winWidth
+                self.lastHeight = winHeight
+                #self.gltengine.setWindow(self.window.xid)
+                self.gltengine.setSize(winWidth, winHeight, self.tileBuffer.array)
+            self.gltengine.renderTiles(int(-panX), int(-panY))
+            self.drawBuffer(self.tileBuffer, ctxWindow, ctxWindowBuffer, winWidth, winHeight)
+            return
+
+        # The regular tile engine code is still here for the preview on the start screen and the "disaster here" thingy
         ctx = cairo.Context(buffer)
 
         if ((renderCols > 0) and
