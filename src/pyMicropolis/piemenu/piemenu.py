@@ -38,6 +38,7 @@ import cairo
 import pango
 import math
 import time
+from pyMicropolis.micropolisEngine import gtkcompat
 
 
 ########################################################################
@@ -564,7 +565,7 @@ class PieItem:
                 x + self.labelX,
                 y + self.labelY)
 
-            context.show_layout(playout)
+            gtkcompat.show_layout(context, playout)
 
         hilited = self.index == self.pie.curItem
         if hilited:
@@ -825,7 +826,7 @@ class PieMenu(gtk.Window):
 
         self.connect("show", self.handleShow)
 
-        d.connect("expose_event", self.handleExpose)
+        d.connect(gtkcompat.expose_event, self.handleExpose)
         d.connect("size_allocate", self.handleSizeAllocate)
         d.connect("motion_notify_event", self.handleMotionNotifyEvent)
         d.connect("button_press_event", self.handleButtonPressEvent)
@@ -1574,17 +1575,18 @@ class PieMenu(gtk.Window):
 
         print "POINTER_GRAB"
         gtk.gdk.pointer_grab(
-            d.window,
+            d.get_window(),
             True,
             gtk.gdk.BUTTON_PRESS_MASK |
             gtk.gdk.BUTTON_RELEASE_MASK |
             gtk.gdk.ENTER_NOTIFY_MASK |
             gtk.gdk.LEAVE_NOTIFY_MASK |
-            gtk.gdk.POINTER_MOTION_MASK)
+            gtk.gdk.POINTER_MOTION_MASK,
+            None,
+            None,
+            0L)
 
-        gtk.gdk.keyboard_grab(
-            d.window,
-            owner_events=True)
+        gtk.gdk.keyboard_grab(d.get_window(), True, 0L)
 
         self.handlePopUp()
 
@@ -1596,7 +1598,7 @@ class PieMenu(gtk.Window):
         self.d.grab_remove()
 
         print "POINTER_UNGRAB"
-        gtk.gdk.pointer_ungrab()
+        gtk.gdk.pointer_ungrab(gtk.gdk.CURRENT_TIME)
 
         self.hide()
        
@@ -1623,7 +1625,7 @@ class PieMenu(gtk.Window):
 
     def draw(self, widget, event):
 
-        context = widget.window.cairo_create()
+        context = widget.get_window().cairo_create()
         pcontext = widget.create_pango_context()
         playout = pango.Layout(pcontext)
 
@@ -1631,11 +1633,14 @@ class PieMenu(gtk.Window):
 
         self.validate(context, pcontext, playout)
 
-        context.rectangle(
-            event.area.x,
-            event.area.y,
-            event.area.width,
-            event.area.height)
+        if gtkcompat.gtk_major_version == 3:
+            context.rectangle(0, 0, self.width, self.height)
+        else:
+            context.rectangle(
+                event.area.x,
+                event.area.y,
+                event.area.width,
+                event.area.height)
         context.clip()
 
         self.drawBackground(context, pcontext, playout)
@@ -1980,7 +1985,7 @@ class PieMenu(gtk.Window):
                 x + headerPadding,
                 y + headerPadding)
 
-            context.show_layout(playout)
+            gtkcompat.show_layout(context, playout)
 
 
     def drawFooter(self, context, pcontext, playout):
@@ -2030,7 +2035,7 @@ class PieMenu(gtk.Window):
                 x + footerPadding,
                 y + footerPadding)
 
-            context.show_layout(playout)
+            gtkcompat.show_layout(context, playout)
 
 
     def drawOverlay(self, context, pcontext, playout):
@@ -2350,7 +2355,7 @@ class PieMenu(gtk.Window):
 
         if (hasattr(event, 'is_hint') and
             event.is_hint):
-            x, y, state = event.window.get_pointer()
+            x, y, state = gtkcompat.event_get_pointer(event)
         else:
             x = event.x
             y = event.y
@@ -2449,7 +2454,7 @@ class PieMenuTarget(gtk.Button):
         if not pie:
             return False
 
-        winX, winY, state = event.window.get_pointer()
+        winX, winY, state = gtkcompat.event_get_pointer(event)
        
         #print "WIN", winX, winY
 

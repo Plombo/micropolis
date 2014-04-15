@@ -70,6 +70,7 @@
 
 
 import gtk
+import gtkcompat
 import cairo
 import pango
 import micropolisengine
@@ -352,7 +353,7 @@ class MicropolisHistoryView(micropolisview.MicropolisView):
             ctx.stroke()
 
             label = historyLegends[i]
-            playout.set_text(label)
+            gtkcompat.layout_set_text(playout, label)
             labelWidth, labelHeight = playout.get_pixel_size()
 
             xx = boxX + (boxWidth / 2) - (labelWidth / 2)
@@ -416,7 +417,7 @@ class MicropolisHistoryView(micropolisview.MicropolisView):
 
         ctx.stroke()
 
-        playout.set_text(label)
+        gtkcompat.layout_set_text(playout, label)
         labelWidth, labelHeight = playout.get_pixel_size()
 
         xx = 0 + (scaleWidth / 2) - (labelWidth / 2)
@@ -601,7 +602,7 @@ class MicropolisHistoryView(micropolisview.MicropolisView):
                 label = str(year)
                 year -= 10
 
-            playout.set_text(label)
+            gtkcompat.layout_set_text(playout, label)
             labelWidth, labelHeight = playout.get_pixel_size()
 
             xx = x + 4

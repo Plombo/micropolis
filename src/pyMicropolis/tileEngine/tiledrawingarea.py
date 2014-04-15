@@ -76,6 +76,7 @@ import math
 import array
 import os
 import array
+from pyMicropolis.micropolisEngine import gtkcompat
 
 
 ########################################################################
@@ -203,8 +204,7 @@ class TileDrawingArea(gtk.DrawingArea):
 
         self.createEngine()
 
-        self.set_flags(
-            gtk.CAN_FOCUS)
+        self.set_can_focus(True)
 
         self.set_events(
             gtk.gdk.EXPOSURE_MASK |
@@ -221,7 +221,7 @@ class TileDrawingArea(gtk.DrawingArea):
             gtk.gdk.PROXIMITY_IN_MASK |
             gtk.gdk.PROXIMITY_OUT_MASK)
 
-        self.connect('expose_event', self.handleExpose)
+        self.connect(gtkcompat.expose_event, self.handleExpose)
         self.connect('enter_notify_event', self.handleEnterNotify)
         self.connect('enter_notify_event', self.handleLeaveNotify)
         self.connect('focus_in_event', self.handleFocusIn)
@@ -332,12 +332,12 @@ class TileDrawingArea(gtk.DrawingArea):
         if self.scale == scale:
             return
 
-        if not self.window:
+        if not self.get_window():
             return
 
         self.scale = scale
 
-        ctxWindow = self.window.cairo_create()
+        ctxWindow = self.get_window().cairo_create()
         self.loadGraphics(ctxWindow, True)
 
         self.updateView()
@@ -554,7 +554,7 @@ class TileDrawingArea(gtk.DrawingArea):
 
         self.beforeDraw()
 
-        ctxWindow = self.window.cairo_create()
+        ctxWindow = self.get_window().cairo_create()
 
         winRect = self.get_allocation()
         winWidth = winRect.width
@@ -842,7 +842,7 @@ class TileDrawingArea(gtk.DrawingArea):
         while len(tileCacheSurfaces) <= surfaceIndex:
             #print "MAKING TILESSURFACE", len(tileCacheSurfaces), tilesPerSurface, surfaceSize
             if nativeTarget == None:
-                ctxWindow = self.window.cairo_create()
+                ctxWindow = self.get_window().cairo_create()
                 nativeTarget = ctxWindow.get_target()
             tilesSurface = nativeTarget.create_similar(cairo.CONTENT_COLOR, surfaceSize, surfaceSize)
             tileCacheSurfaces.append(tilesSurface)
@@ -984,7 +984,7 @@ class TileDrawingArea(gtk.DrawingArea):
         event):
         if (hasattr(event, 'is_hint') and
             event.is_hint):
-            x, y, state = event.window.get_pointer()
+            x, y, state = gtkcompat.event_get_pointer(event)
         else:
             x = event.x
             y = event.y
@@ -1002,7 +1002,7 @@ class TileDrawingArea(gtk.DrawingArea):
         event):
         if (hasattr(event, 'is_hint') and
             event.is_hint):
-            x, y, state = event.window.get_pointer()
+            x, y, state = gtkcompat.event_get_pointer(event)
         else:
             x = event.x
             y = event.y
@@ -1016,7 +1016,7 @@ class TileDrawingArea(gtk.DrawingArea):
 
     def updateView(self):
         self.queue_draw()
-        self.parent.queue_draw() # @bug Why is this necessary? Doesn't draw without it. Are we really a window?
+        self.get_parent().queue_draw() # @bug Why is this necessary? Doesn't draw without it. Are we really a window?
 
 
     def panTo(self, x, y):
@@ -1194,11 +1194,8 @@ class TileDrawingArea(gtk.DrawingArea):
         self,
         event):
 
-        if not event:
-            x, y, state = self.window.get_pointer()
-        elif (hasattr(event, 'is_hint') and
-              event.is_hint):
-            x, y, state = event.window.get_pointer()
+        if not event or (hasattr(event, 'is_hint') and event.is_hint):
+            x, y, state = gtkcompat.event_get_pointer(event)
         else:
             x = event.x
             y = event.y
@@ -1269,7 +1266,8 @@ class TileDrawingArea(gtk.DrawingArea):
 
             if pie:
 
-                win_x, win_y, state = event.window.get_pointer()
+                win_x, win_y, state = gtkcompat.event_get_pointer(event)
+                
 
                 #print "POP UP PIE", pie, win_x, win_y, state
                 #print "WIN", win_x, win_y

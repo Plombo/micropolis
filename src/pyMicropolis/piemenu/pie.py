@@ -38,6 +38,7 @@ import cairo
 import pango
 import math
 import time
+from pyMicropolis.micropolisEngine import gtkcompat
 
 
 ########################################################################
@@ -561,7 +562,7 @@ class PieItem:
                 x + self.labelX,
                 y + self.labelY)
 
-            context.show_layout(playout)
+            gtkcompat.show_layout(context, playout)
 
         hilited = self.index == self.pie.curItem
         if hilited:

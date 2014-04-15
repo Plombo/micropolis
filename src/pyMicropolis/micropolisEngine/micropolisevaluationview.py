@@ -89,6 +89,7 @@
 
 
 import gtk
+import gtkcompat
 import cairo
 import pango
 import micropolisengine
@@ -271,7 +272,7 @@ Worst Problems?</b>
                 colWidth = width
 
             ctx.move_to(x, y)
-            ctx.show_layout(playout)
+            gtkcompat.show_layout(ctx, playout)
 
             y += height + vgap
 

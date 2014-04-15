@@ -73,6 +73,7 @@ import sys
 import os
 import time
 import gtk
+import gtkcompat
 import gobject
 import cairo
 import pango
@@ -518,7 +519,7 @@ class EditableMicropolisDrawingAreaGL(gtk.DrawingArea):
 
         gtk.DrawingArea.__init__(self, **args)
         self.set_double_buffered(False)
-        self.set_flags(gtk.CAN_FOCUS)
+        self.set_can_focus(True)
 
         self.sprite = sprite
 
@@ -545,7 +546,7 @@ class EditableMicropolisDrawingAreaGL(gtk.DrawingArea):
         self.overlayBuffer = None
         self.overlaySurface = None
 
-        self.connect('expose-event', self.handleExpose)
+        self.connect(gtkcompat.expose_event, self.handleExpose)
         self.connect('configure-event', self.handleConfigure)
         self.connect('button_press_event', self.handleButtonPress)
         self.connect('button_release_event', self.handleButtonRelease)
@@ -564,7 +565,10 @@ class EditableMicropolisDrawingAreaGL(gtk.DrawingArea):
         #self.tileBuffer = bytearray.getByteArray(winHeight * winWidth * 4)
         self.lastWidth = winWidth
         self.lastHeight = winHeight
-        self.gltengine.setWindow(self.get_window().xid)
+        if gtkcompat.gtk_major_version == 3:
+            self.gltengine.setWindow(self.get_window().get_xid())
+        else:
+            self.gltengine.setWindow(self.get_window().xid)
         if not self.gltengine.setSize(winWidth, winHeight, None):
             print 'Error in EGL/OpenGL initialization'
             sys.exit(1)
@@ -732,7 +736,7 @@ class EditableMicropolisDrawingAreaGL(gtk.DrawingArea):
 
             if pie:
 
-                win_x, win_y, state = event.window.get_pointer()
+                win_x, win_y, state = gtkcompat.event_get_pointer(event)
 
                 #print "POP UP PIE", pie, win_x, win_y, state
                 #print "WIN", win_x, win_y
@@ -765,7 +769,7 @@ class EditableMicropolisDrawingAreaGL(gtk.DrawingArea):
     def getEventXY(self, event):
         if (hasattr(event, 'is_hint') and
             event.is_hint):
-            x, y, state = event.window.get_pointer()
+            x, y, state = gtkcompat.event_get_pointer(event)
         else:
             x = event.x
             y = event.y
@@ -781,7 +785,7 @@ class EditableMicropolisDrawingAreaGL(gtk.DrawingArea):
     def getEventColRow(self, event):
         if (hasattr(event, 'is_hint') and
             event.is_hint):
-            x, y, state = event.window.get_pointer()
+            x, y, state = gtkcompat.event_get_pointer(event)
         else:
             x = event.x
             y = event.y
@@ -796,7 +800,7 @@ class EditableMicropolisDrawingAreaGL(gtk.DrawingArea):
         if not event:
             x, y, state = self.window.get_pointer()
         elif hasattr(event, 'is_hint') and event.is_hint:
-            x, y, state = event.window.get_pointer()
+            x, y, state = gtkcompat.event_get_pointer(event)
         else:
             x = event.x
             y = event.y
@@ -1093,7 +1097,7 @@ class NavigationMicropolisDrawingArea(MicropolisDrawingArea):
             x, y, state = self.window.get_pointer()
         elif (hasattr(event, 'is_hint') and
               event.is_hint):
-            x, y, state = event.window.get_pointer()
+            x, y, state = gtkcompat.event_get_pointer(event)
         else:
             x = event.x
             y = event.y
