@@ -1,7 +1,8 @@
-#ifndef H_READPNG
-#define H_READPNG
+#ifndef READPNG_H
+#define READPNG_H
 
-bool readPNG(const char* filename, void* buf, unsigned int bufSize);
+void* readPNG(const char* filename, int* width, int* height, int *allocWidth, int *allocHeight);
+void savePNG(const char* filename, unsigned char* buffer, int width, int height);
 
 #endif
 

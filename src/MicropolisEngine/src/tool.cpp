@@ -144,6 +144,7 @@ void ToolEffects::modifyWorld()
 bool ToolEffects::modifyIfEnoughFunding()
 {
     if (this->sim->totalFunds < this->cost) {
+        printf("Not enough money: cost=%li, totalFunds=%li\n", this->cost, this->sim->totalFunds);
         return false; // Not enough money
     }
 
@@ -178,6 +179,18 @@ MapValue ToolEffects::getMapValue(const Position &pos) const
 void ToolEffects::setMapValue(const Position &pos, MapValue mapVal)
 {
     this->modifications[pos] = mapVal;
+}
+
+////////////////////////////////////////////////////////////////////////
+// ToolTest
+
+ToolTest::ToolTest(Micropolis *sim) : ToolEffects(sim)
+{
+}
+
+void ToolTest::modifyWorld()
+{
+	this->clear();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1372,100 +1385,99 @@ ToolResult Micropolis::forestTool(short x, short y, ToolEffects *effects)
  * @param tileY Vertical position in the city map.
  * @return Tool result.
  */
-ToolResult Micropolis::doTool(EditingTool tool, short tileX, short tileY)
+ToolResult Micropolis::doTool(EditingTool tool, short tileX, short tileY, ToolEffects *effects)
 {
-    ToolEffects effects(this);
     ToolResult result;
 
     switch (tool) {
 
     case TOOL_RESIDENTIAL:
         result = buildBuildingTool(tileX, tileY, &residentialZoneBuilding,
-                                   &effects);
+                                   effects);
         break;
 
     case TOOL_COMMERCIAL:
         result = buildBuildingTool(tileX, tileY, &commercialZoneBuilding,
-                                   &effects);
+                                   effects);
         break;
 
     case TOOL_INDUSTRIAL:
         result = buildBuildingTool(tileX, tileY, &industrialZoneBuilding,
-                                   &effects);
+                                   effects);
         break;
 
     case TOOL_FIRESTATION:
         result = buildBuildingTool(tileX, tileY, &fireStationBuilding,
-                                   &effects);
+                                   effects);
         break;
 
     case TOOL_POLICESTATION:
         result = buildBuildingTool(tileX, tileY, &policeStationBuilding,
-                                   &effects);
+                                   effects);
         break;
 
     case TOOL_QUERY:
         return queryTool(tileX, tileY);
 
     case TOOL_WIRE:
-        result = wireTool(tileX, tileY, &effects);
+        result = wireTool(tileX, tileY, effects);
         break;
 
     case TOOL_BULLDOZER:
-        result = bulldozerTool(tileX, tileY, &effects);
+        result = bulldozerTool(tileX, tileY, effects);
         break;
 
     case TOOL_RAILROAD:
-        result = railroadTool(tileX, tileY, &effects);
+        result = railroadTool(tileX, tileY, effects);
         break;
 
     case TOOL_ROAD:
-        result = roadTool(tileX, tileY, &effects);
+        result = roadTool(tileX, tileY, effects);
         break;
 
     case TOOL_STADIUM:
         result = buildBuildingTool(tileX, tileY, &stadiumBuilding,
-                                   &effects);
+                                   effects);
         break;
 
     case TOOL_PARK:
-        result = parkTool(tileX, tileY, &effects);
+        result = parkTool(tileX, tileY, effects);
         break;
 
     case TOOL_SEAPORT:
         result = buildBuildingTool(tileX, tileY, &seaportBuilding,
-                                   &effects);
+                                   effects);
         break;
 
     case TOOL_COALPOWER:
         result = buildBuildingTool(tileX, tileY, &coalPowerBuilding,
-                                   &effects);
+                                   effects);
         break;
 
     case TOOL_NUCLEARPOWER:
         result = buildBuildingTool(tileX, tileY, &nuclearPowerBuilding,
-                                   &effects);
+                                   effects);
         break;
 
     case TOOL_AIRPORT:
         result = buildBuildingTool(tileX, tileY, &airportBuilding,
-                                   &effects);
+                                   effects);
         break;
 
     case TOOL_NETWORK:
-        result = networkTool(tileX, tileY, &effects);
+        result = networkTool(tileX, tileY, effects);
         break;
 
     case TOOL_WATER:
-        result = waterTool(tileX, tileY, &effects);
+        result = waterTool(tileX, tileY, effects);
         break;
 
     case TOOL_LAND:
-        result = landTool(tileX, tileY, &effects);
+        result = landTool(tileX, tileY, effects);
         break;
 
     case TOOL_FOREST:
-        result = forestTool(tileX, tileY, &effects);
+        result = forestTool(tileX, tileY, effects);
         break;
 
     default:
@@ -1475,12 +1487,43 @@ ToolResult Micropolis::doTool(EditingTool tool, short tileX, short tileY)
 
     // Perform the effects of applying the tool if enough funds.
     if (result == TOOLRESULT_OK) {
-        if (!effects.modifyIfEnoughFunding()) {
+        if (!effects->modifyIfEnoughFunding()) {
             return TOOLRESULT_NO_MONEY;
         }
     }
 
     return result;
+}
+
+
+/**
+ * Apply a tool.
+ * @param tool  Tool to use.
+ * @param tileX Horizontal position in the city map.
+ * @param tileY Vertical position in the city map.
+ * @return Tool result.
+ */
+ToolResult Micropolis::doTool(EditingTool tool, short tileX, short tileY)
+{
+    ToolEffects effects(this);
+    printf("doTool: x=%i, y=%i\n", tileX, tileY);
+    return doTool(tool, tileX, tileY, &effects);
+}
+
+
+/**
+ * Test whether a tool will succeed when used with doTool(), without applying
+ * any modifications to the world.
+ * @param tool  Tool to use.
+ * @param tileX Horizontal position in the city map.
+ * @param tileY Vertical position in the city map.
+ * @return Tool result.
+ */
+ToolResult Micropolis::predictToolSuccess(EditingTool tool, short tileX, short tileY)
+{
+    ToolTest effects(this);
+    printf("predict: x=%i, y=%i\n", tileX, tileY);
+    return doTool(tool, tileX, tileY, &effects);
 }
 
 

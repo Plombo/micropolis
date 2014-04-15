@@ -675,12 +675,13 @@ class TileDrawingArea(gtk.DrawingArea):
             return
         if self.gltengine:
             if winHeight != self.lastHeight or winWidth != self.lastWidth:
-                self.tileBuffer = bytearray.ByteArray('B', [0]*(winHeight*winWidth*4))
+                self.tileBuffer = bytearray.getByteArray(winHeight*winWidth*4)
                 self.lastWidth = winWidth
                 self.lastHeight = winHeight
-                #self.gltengine.setWindow(self.window.xid)
-                self.gltengine.setSize(winWidth, winHeight, self.tileBuffer.array)
-            self.gltengine.renderTiles(int(-panX), int(-panY))
+                print self.gltengine.setSize(winWidth, winHeight, self.tileBuffer.array)
+            self.gltengine.startFrame(int(-panX), int(-panY), self.scale)
+            self.gltengine.renderTiles()
+            self.gltengine.finishFrame()
             self.drawBuffer(self.tileBuffer, ctxWindow, ctxWindowBuffer, winWidth, winHeight)
             return
 

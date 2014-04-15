@@ -78,8 +78,11 @@ setup(
         Extension('_gltileengine', [
                 'objs/gltileengine_wrap.cpp',
                 'src/gltileengine.cpp',
+                'src/sprite.cpp',
+                'src/glsprites.cpp',
                 'src/readpng.cpp',
-                'src/map.cpp'
+                'src/map.cpp',
+                'src/overlay.cpp'
             ],
             include_dirs = [
                 'src',

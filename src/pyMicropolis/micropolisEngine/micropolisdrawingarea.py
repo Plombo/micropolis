@@ -212,11 +212,11 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
         if isinstance(self, EditableMicropolisDrawingArea):
             gltengine = gltileengine.GLTileEngine(self.engine, self.engine.getMapBuffer())
             print 'GLTileEngine object: ' + str(gltengine)
-            self.tileBuffer = bytearray.ByteArray('B', [0]*(512*512*4))
-            self.lastWidth = 512
-            self.lastHeight = 512
-            if gltengine.initGL(512, 512, self.tileBuffer.array): print 'GL initialized OK'
-            else: print 'Failed to initialize GL'
+            self.tileBuffer = bytearray.getByteArray(512*512*4)
+            self.lastWidth = -1
+            self.lastHeight = -1
+            #if gltengine.initGL(512, 512, self.tileBuffer.array): print 'GL initialized OK'
+            #else: print 'Failed to initialize GL'
             self.gltengine = gltengine
 
 
@@ -256,7 +256,7 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
                 tile = LIGHTNINGBOLT | (tile & ALLBITS)
             return tile
 
-        self.tileFunction = None # tileFunction
+        self.tileFunction = tileFunction
 
         # Unsigned short tile values, in column major order.
         tengine.tileFormat = tileengine.TILE_FORMAT_SHORT_UNSIGNED
@@ -281,6 +281,8 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
         self,
         ctx):
 
+        # We don't need this function anymore and it maxes CPU usage when overlays are enabled
+        return
         if self.showData:
             self.drawData(ctx)
 
@@ -298,7 +300,6 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
             if tool:
                 tool.drawCursor(self, ctx)
 
-
     def setMapStyle(self, mapStyle):
         self.mapStyle = mapStyle
 
@@ -310,6 +311,10 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
             engine.getDataImageAlphaSize(mapStyle)
         if not dataImage:
             return
+        
+        # screenshot
+        try: f = open('screenshot.png', 'rb'); f.close()
+        except IOError: dataImage.write_to_png('screenshot.png')
 
         width = 1.0 / width
         height = 1.0 / height
@@ -465,13 +470,11 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
 
 
 class EditableMicropolisDrawingAreaCairo(MicropolisDrawingArea):
-
-
     pass
 
-# Most of this class is copy-pasta from tiledrawingarea.TileDrawingArea. Eventually
+# Much of this class is copy-pasta from tiledrawingarea.TileDrawingArea. Eventually
 # most of the copied code should be removable from that class, though.
-class EditableMicropolisDrawingAreaGL(gtk.EventBox):
+class EditableMicropolisDrawingAreaGL(gtk.DrawingArea):
     def __init__(
         self,
         engine=None,
@@ -494,7 +497,7 @@ class EditableMicropolisDrawingAreaGL(gtk.EventBox):
         self.tileSize = 16
         self.scale = 1.0
         self.panX = 0
-        self.panY = 0 
+        self.panY = 0
 
         self.engine = engine
         self.showData = showData
@@ -511,8 +514,11 @@ class EditableMicropolisDrawingAreaGL(gtk.EventBox):
         self.cursorY = -1
         self.cursorRow = 0
         self.cursorCol = 0
+        self.down = False
 
-        gtk.EventBox.__init__(self, **args)
+        gtk.DrawingArea.__init__(self, **args)
+        self.set_double_buffered(False)
+        self.set_flags(gtk.CAN_FOCUS)
 
         self.sprite = sprite
 
@@ -534,9 +540,39 @@ class EditableMicropolisDrawingAreaGL(gtk.EventBox):
         self.lastWidth = -1
         self.lastHeight = -1
         self.gltengine = gltengine
+        
+        # XXX temporary Cairo stuff
+        self.overlayBuffer = None
+        self.overlaySurface = None
 
+        self.connect('expose-event', self.handleExpose)
+        self.connect('configure-event', self.handleConfigure)
         self.connect('button_press_event', self.handleButtonPress)
+        self.connect('button_release_event', self.handleButtonRelease)
         self.connect('motion_notify_event', self.handleMotionNotify)
+        self.connect('enter_notify_event', self.handleEnterNotify)
+        self.set_events(gtk.gdk.ENTER_NOTIFY_MASK |
+                        gtk.gdk.POINTER_MOTION_MASK |
+                        gtk.gdk.BUTTON_PRESS_MASK |
+                        gtk.gdk.BUTTON_RELEASE_MASK)
+
+    def handleConfigure(self, widget, event, *args):
+        # set up render destination
+        winRect = self.get_allocation()
+        winWidth = winRect.width
+        winHeight = winRect.height
+        #self.tileBuffer = bytearray.getByteArray(winHeight * winWidth * 4)
+        self.lastWidth = winWidth
+        self.lastHeight = winHeight
+        self.gltengine.setWindow(self.get_window().xid)
+        if not self.gltengine.setSize(winWidth, winHeight, None):
+            print 'Error in EGL/OpenGL initialization'
+            sys.exit(1)
+        self.actuallyDraw()
+
+    def handleExpose(self, widget, event, *args):
+        self.actuallyDraw()
+        return False
 
     def draw(self, widget=None, event=None):
         pass
@@ -544,81 +580,65 @@ class EditableMicropolisDrawingAreaGL(gtk.EventBox):
     def actuallyDraw(self):
         panX = self.panX
         panY = self.panY
-        winRect = self.get_allocation()
-        winWidth = winRect.width
-        winHeight = winRect.height
         
-        # set up render destination
-        if winHeight != self.lastHeight or winWidth != self.lastWidth:
-            self.tileBuffer = bytearray.ByteArray('B', [0]*(winHeight*winWidth*4))
-            self.lastWidth = winWidth
-            self.lastHeight = winHeight
-            self.gltengine.setWindow(self.get_window().xid)
-            self.gltengine.setSize(winWidth, winHeight, self.tileBuffer.array)
+        # start drawing the frame
+        self.gltengine.startFrame(int(-panX), int(-panY), self.scale)
 
         # render tiles
-        self.gltengine.renderTiles(int(-panX), int(-panY))
+        self.gltengine.renderTiles()
         
         # draw cursor
         tool = self.getActiveTool()
         if tool and self.cursorX >= 0 and self.cursorY >= 0:
-            # tool.drawCursor uses Cairo, so do our own thing here for now
-            cursorX = view.cursorX
-            cursorY = view.cursorY
-            cursorCol = view.cursorCol
-            cursorRow = view.cursorRow
-            cursorCols = self.cursorCols
-            cursorRows = self.cursorRows
-            tileSize = view.tileSize
-            panX = view.panX
-            panY = view.panY
+            # tool.drawCursor uses Cairo, so do our own thing here
+            x = int(self.cursorX) - self.tileSize * tool.cursorHotCol
+            y = int(self.cursorY) - self.tileSize * tool.cursorHotRow
+            
+            canBuild = self.engine.predictToolSuccess(tool.toolIndex, x, y) # FIXME?: is this X/Y the same as event X/Y?
+            if canBuild != micropolisengine.TOOLRESULT_OK:
+            	print "can't build here (%i)" % canBuild
+            else:
+            	print "can build here"
+            
+            self.gltengine.drawCursor(x, y, tool.cursorCols, tool.cursorRows)
+        
+        # draw sprites
+        self.drawSprites()
+        
+        # draw map overlay if there is one
+        self.drawOverlay()
+        
+        # finish drawing the frame
+        self.gltengine.finishFrame()
 
-            x = panX + (tileSize * cursorCol)
-            y = panY + (tileSize * cursorRow)
+    def drawSprites(self):
+        sprite = self.engine.spriteList
+        while sprite:
+            self.gltengine.drawSprite(sprite)
+            sprite = sprite.next
 
-            #print "drawCursor", "cursor", cursorCol, cursorRow, cursorCols, cursorRow, "size", tileSize, "pan", panX, panY, "tile", x, y
-            # TODO FINISHME actually finish this!!!!!!
-
-            for ty in xrange(tileSize):
-                for tx in xrange(tileSize):
-                    
-
-            ctx.rectangle(
-                -2,
-                -2,
-                (cursorCols * tileSize) + 4,
-                (cursorRows * tileSize) + 4)
-
-            ctx.set_line_width(
-                4.0)
-
-            ctx.set_source_rgb(
-                1.0,
-                1.0,
-                1.0)
-
-            ctx.stroke_preserve()
-
-            ctx.set_line_width(
-                2.0)
-
-            ctx.set_source_rgb(
-                0.0,
-                0.0,
-                0.0)
-
-            ctx.stroke()
-
-            ctx.restore()
+    def drawOverlay(self):
+        overlayTypes = {
+            'powergrid': (self.engine.getPowerGridMapBuffer(), micropolisengine.MAP_TYPE_POWER),
+            'trafficdensity': (self.engine.getTrafficDensityMapBuffer(), micropolisengine.MAP_TYPE_TRAFFIC_DENSITY),
+            'pollutiondensity': (self.engine.getPollutionDensityMapBuffer(), micropolisengine.MAP_TYPE_POLLUTION),
+            'populationdensity': (self.engine.getPopulationDensityMapBuffer(), micropolisengine.MAP_TYPE_POPULATION_DENSITY),
+            'crimerate': (self.engine.getCrimeRateMapBuffer(), micropolisengine.MAP_TYPE_CRIME),
+            'landvalue': (self.engine.getLandValueMapBuffer(), micropolisengine.MAP_TYPE_LAND_VALUE),
+            'firecoverage': (self.engine.getFireCoverageMapBuffer(), micropolisengine.MAP_TYPE_FIRE_RADIUS),
+            'policecoverage': (self.engine.getPoliceCoverageMapBuffer(), micropolisengine.MAP_TYPE_POLICE_RADIUS),
+            'rateofgrowth': (self.engine.getRateOfGrowthMapBuffer(), micropolisengine.MAP_TYPE_RATE_OF_GROWTH),
+        }
+        if self.mapStyle in overlayTypes.keys():
+            self.gltengine.drawOverlay(*overlayTypes[self.mapStyle])
     
     def update(self, name, *args):
-        #print "EditableMicropolisDrawingArea update", self, name, args
         winRect = self.get_allocation()
         winWidth = winRect.width
         winHeight = winRect.height
         if winWidth <= 1 or winHeight <= 1: return
 
-        self.actuallyDraw()
+        self.queue_draw()
     
     def engage(self):
         self.engaged = True
@@ -628,12 +648,10 @@ class EditableMicropolisDrawingAreaGL(gtk.EventBox):
     
     def updateView(self):
         self.queue_draw()
-        self.parent.queue_draw() # @bug Why is this necessary? Doesn't draw without it. Are we really a window?
     
     def panTo(self, x, y):
         self.panX = x
         self.panY = y
-        #self.updateView()
 
     def panBy(self, dx, dy):
         self.panTo(
@@ -697,12 +715,6 @@ class EditableMicropolisDrawingAreaGL(gtk.EventBox):
         self.selectedTool = tool
     
     def handleButtonPress(self, widget, event):
-
-        print "handleButtonPress EditableMicropolisDrawingAreaGL", self
-
-        #print "EVENT", event
-        #print dir(event)
-
         if event.button == 1: # left button
 
             self.down = True
@@ -731,18 +743,24 @@ class EditableMicropolisDrawingAreaGL(gtk.EventBox):
 
                 pie.popUp(x, y, False)
 
+    def handleButtonRelease(self, widget, event):
+        #print "handleButtonRelease TileDrawingArea", self
+        self.handleMouseDrag(event)
+        self.down = False
+
+        tool = self.getActiveTool()
+        if tool:
+            tool.handleMouseUp(self, event)
+
     def handleMouseDrag(self, event):
         tool = self.getActiveTool()
         if tool:
             tool.handleMouseDrag(self, event)
 
-    # TODO
     def handleMouseHover(self, event):
-        pass
-        '''tool = self.getActiveTool()
-        #print "handleMouseHover", tool
+        tool = self.getActiveTool()
         if tool:
-            tool.handleMouseHover(self, event)'''
+            tool.handleMouseHover(self, event)
 
     def getEventXY(self, event):
         if (hasattr(event, 'is_hint') and
@@ -755,8 +773,8 @@ class EditableMicropolisDrawingAreaGL(gtk.EventBox):
         tileSize = self.tileSize
 
         return (
-            (x - self.panX) / tileSize,
-            (y - self.panY) / tileSize,
+            (x/self.scale - self.panX) / tileSize,
+            (y/self.scale - self.panY) / tileSize,
         )
 
 
@@ -769,16 +787,15 @@ class EditableMicropolisDrawingAreaGL(gtk.EventBox):
             y = event.y
 
         tileSize = self.tileSize
-        col = int((x - self.panX) / tileSize)
-        row = int((y - self.panY) / tileSize)
+        col = int((x/self.scale - self.panX) / tileSize)
+        row = int((y/self.scale - self.panY) / tileSize)
 
         return (col, row)
 
     def handleMotionNotify(self, widget, event):
         if not event:
             x, y, state = self.window.get_pointer()
-        elif (hasattr(event, 'is_hint') and
-              event.is_hint):
+        elif hasattr(event, 'is_hint') and event.is_hint:
             x, y, state = event.window.get_pointer()
         else:
             x = event.x
@@ -792,13 +809,50 @@ class EditableMicropolisDrawingAreaGL(gtk.EventBox):
         if tool:
             # TODO finish
             #tool.setCursorPos(self, x - self.panX, y - self.panY)
-            self.cursorX = x
-            self.cursorY = y
+            self.cursorX = x/self.scale - self.panX
+            self.cursorY = y/self.scale - self.panY
 
         if self.down:
             self.handleMouseDrag(event)
         else:
             self.handleMouseHover(event)
+
+    def handleEnterNotify(self, widget, event):
+        self.grab_focus()
+
+    # TODO finish me!!!
+    '''def handleKeyPress(self, widget, event):
+        key = event.keyval
+
+        if ((not self.trackingTool) and
+            (key in self.panKeys)):
+            panTool = tiletool.TileTool.getToolByName('Pan')
+            #print "panTool", panTool
+            if panTool:
+                self.trackingToolTrigger = key
+                self.trackingTool = panTool
+                panTool.startPanning(self)
+                #print "Activated panTool", panTool
+                return
+
+        if self.handleKey(key):
+            return
+
+        tool = self.getActiveTool()
+        if tool:
+            if tool.handleKeyDown(self, event):
+                return
+
+        # TODO: This might be handled by the pan tool.
+        if key == ord('=') or key == ord('+'):
+            self.changeScale(self.scale * 1.1)
+        elif key == ord('-'):
+            self.changeScale(self.scale / 1.1)
+        elif key == ord('r'):
+            self.changeScale(1.0)'''
+
+    def setMapStyle(self, mapStyle):
+        self.mapStyle = mapStyle
 
 
 # comment out one of the two lines below to select which class to actually use
@@ -921,7 +975,7 @@ class NavigationMicropolisDrawingArea(MicropolisDrawingArea):
         self.panningStartCursorY = 0
         self.panningStartPanX = 0
         self.panningStartPanY = 0
-        self.mapBuffer = bytearray.ByteArray('B', [0]*(120 * 100 * 4))
+        self.mapBuffer = bytearray.getByteArray(120 * 100 * 4)
 
 
     def drawOverlays(self, ctx):

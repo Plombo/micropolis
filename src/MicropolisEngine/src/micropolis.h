@@ -2699,6 +2699,7 @@ public:
 public:
 
     ToolResult doTool(EditingTool tool, short tileX, short tileY);
+    ToolResult predictToolSuccess(EditingTool tool, short tileX, short tileY);
 
     void toolDown(EditingTool tool, short tileX, short tileY);
 
@@ -2708,6 +2709,8 @@ public:
     void didTool(const char *name, short x, short y);
 
 private:
+
+    ToolResult doTool(EditingTool tool, short tileX, short tileY, ToolEffects *effects);
 
     ToolResult queryTool(short x, short y);
 

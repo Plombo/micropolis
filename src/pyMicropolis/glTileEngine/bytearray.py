@@ -8,3 +8,8 @@ class ByteArray(array.array):
 		# TODO rename self.array to self.pointer
 		self.array = gltileengine.intAsBytePointer(self.buffer_info()[0])
 
+def zeroIterator(size):
+	for i in xrange(size): yield 0
+
+getByteArray = lambda size: ByteArray('B', zeroIterator(size))
+
