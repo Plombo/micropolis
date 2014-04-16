@@ -1092,7 +1092,6 @@ ToolResult Micropolis::bulldozerTool(short x, short y, ToolEffects *effects)
     if (result == TOOLRESULT_OK) {
         /* send 'didtool' message */
         frontendMsg = new FrontendMessageDidTool("Dozr", x, y);
-        didTool("Dozr", x, y);
         effects->addFrontendMessage(frontendMsg);
     }
 
@@ -1506,7 +1505,6 @@ ToolResult Micropolis::doTool(EditingTool tool, short tileX, short tileY, ToolEf
 ToolResult Micropolis::doTool(EditingTool tool, short tileX, short tileY)
 {
     ToolEffects effects(this);
-    printf("doTool: x=%i, y=%i\n", tileX, tileY);
     return doTool(tool, tileX, tileY, &effects);
 }
 
@@ -1522,7 +1520,6 @@ ToolResult Micropolis::doTool(EditingTool tool, short tileX, short tileY)
 ToolResult Micropolis::predictToolSuccess(EditingTool tool, short tileX, short tileY)
 {
     ToolTest effects(this);
-    printf("predict: x=%i, y=%i\n", tileX, tileY);
     return doTool(tool, tileX, tileY, &effects);
 }
 

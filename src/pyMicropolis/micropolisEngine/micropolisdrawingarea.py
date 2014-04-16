@@ -595,16 +595,15 @@ class EditableMicropolisDrawingAreaGL(gtk.DrawingArea):
         tool = self.getActiveTool()
         if tool and self.cursorX >= 0 and self.cursorY >= 0:
             # tool.drawCursor uses Cairo, so do our own thing here
+            tileX = int(self.cursorX / self.tileSize)
+            tileY = int(self.cursorY / self.tileSize)
+            
+            toolResult = self.engine.predictToolSuccess(tool.toolIndex, tileX, tileY)
+            
             x = int(self.cursorX) - self.tileSize * tool.cursorHotCol
             y = int(self.cursorY) - self.tileSize * tool.cursorHotRow
-            
-            canBuild = self.engine.predictToolSuccess(tool.toolIndex, x, y) # FIXME?: is this X/Y the same as event X/Y?
-            if canBuild != micropolisengine.TOOLRESULT_OK:
-            	print "can't build here (%i)" % canBuild
-            else:
-            	print "can build here"
-            
-            self.gltengine.drawCursor(x, y, tool.cursorCols, tool.cursorRows)
+            canBuild = (toolResult == micropolisengine.TOOLRESULT_OK)
+            self.gltengine.drawCursor(x, y, tool.cursorCols, tool.cursorRows, canBuild)
         
         # draw sprites
         self.drawSprites()

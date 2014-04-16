@@ -408,7 +408,7 @@ void GLTileEngine::genTexCoords()
 	assert(index == LENGTH_OF(this->texCoords));
 }
 
-void GLTileEngine::drawCursor(int x, int y, int cols, int rows)
+void GLTileEngine::drawCursor(int x, int y, int cols, int rows, int canOperate)
 {
 	// align to top left of tile
 	x = x & 0xfffffff0;
@@ -417,7 +417,10 @@ void GLTileEngine::drawCursor(int x, int y, int cols, int rows)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColor4f(0.4f, 0.75f, 1.0f, 0.6f);
+	if (canOperate)
+		glColor4f(0.4f, 0.75f, 1.0f, 0.6f);
+	else
+		glColor4f(1.0f, 0.75f, 0.4f, 0.6f);
 	GLint verts[8];
 	glEnableClientState(GL_VERTEX_ARRAY);
 	for(int ty=0; ty<rows; ty++)

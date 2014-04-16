@@ -58,7 +58,7 @@ public:
 	void setWindow(int window);
 	bool setSize(int width, int height, unsigned char* buffer);
 	void renderTiles();
-	void drawCursor(int x, int y, int cols, int rows);
+	void drawCursor(int x, int y, int cols, int rows, int canOperate);
 	void drawSprite(SimSprite* sprite);
 	void drawOverlay(void* buffer, int overlayType);
 	void startFrame(int xOffset, int yOffset, float scale);
