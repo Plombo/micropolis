@@ -70,9 +70,9 @@ PYTHONBUILDDIR = $(shell python -c 'from distutils import sysconfig, util ; \
 	print "lib.%s-%s" \
 		% (util.get_platform(), sysconfig.get_config_var("VERSION"))')
 
-SOURCES = src/gltileengine.cpp src/sprite.cpp src/glsprites.cpp src/readpng.cpp src/map.cpp src/overlay.cpp
+SOURCES = src/gltileengine.cpp src/sprite.cpp src/glsprites.cpp src/readpng.cpp src/map.cpp src/overlay.cpp src/eglplatform.cpp
 
-HEADERS = src/gltileengine.h src/sprite.h src/glsprites.h src/map.h src/overlay.h src/colormaps.h
+HEADERS = src/gltileengine.h src/sprite.h src/glsprites.h src/map.h src/overlay.h src/colormaps.h src/glplatform.h
 
 .PHONY: build_python build_swig clean
 

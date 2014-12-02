@@ -82,7 +82,8 @@ setup(
                 'src/glsprites.cpp',
                 'src/readpng.cpp',
                 'src/map.cpp',
-                'src/overlay.cpp'
+                'src/overlay.cpp',
+                'src/eglplatform.cpp'
             ],
             include_dirs = [
                 'src',

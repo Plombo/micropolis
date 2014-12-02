@@ -1,11 +1,11 @@
-const int powerGridColorMap[4] = {
+const unsigned powerGridColorMap[4] = {
 	0x00000000,
 	0xd9a2503e,
 	0xd900ffff,
 	0xd9b7b7b7
 };
 
-const int dataColorMap[256] = {
+const unsigned dataColorMap[256] = {
 	0x00ffffff,
 	0x00ffffff,
 	0x00ffffff,
@@ -264,7 +264,7 @@ const int dataColorMap[256] = {
 	0x7f0000ff,
 };
 
-const int rateColorMap[256] = {
+const unsigned rateColorMap[256] = {
 	0xba00fffc,
 	0xbe00fffc,
 	0xbe00fffc,

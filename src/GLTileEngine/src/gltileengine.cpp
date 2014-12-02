@@ -22,21 +22,14 @@
  */
 GLTileEngine::GLTileEngine(Micropolis* engine, void* mapBase)
 {
+	this->platform = new EGLPlatform();
 	this->engine = engine;
 	this->tiles = (unsigned char*) mapBase;
 	this->width = this->height = this->texture = -1;
-	this->surface = EGL_NO_SURFACE;
-	this->context = EGL_NO_CONTEXT;
-	this->window = 0;
-
-	// we can go ahead and initialize EGL here
-	this->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-	eglBindAPI(EGL_OPENGL_API);
-	eglInitialize(this->display, NULL, NULL);
 	
 	// TODO: move this into a separate init() function so we can return false
 	//if(!initContext()) return false;
-	initContext();
+	this->platform->initContext();
 }
 
 /**
@@ -45,7 +38,7 @@ GLTileEngine::GLTileEngine(Micropolis* engine, void* mapBase)
 GLTileEngine::~GLTileEngine()
 {
 	// destroying the context will free everything that needs to be freed
-	destroyContext();
+	delete this->platform;
 }
 
 /**
@@ -55,8 +48,8 @@ GLTileEngine::~GLTileEngine()
  */
 void GLTileEngine::setWindow(int win)
 {
-	this->window = win;
-	initSurface();
+	this->platform->setWindow(win);
+	this->platform->initSurface();
 	initGL();
 	setSize(this->width, this->height, this->buffer);
 }
@@ -74,105 +67,6 @@ static GLenum checkGLError()
 		printf("GL error: %i\n", error);
 	}
 	return error;
-}
-
-/**
- * Frees all resources associated with the current OpenGL context, if there is
- * one.
- */
-void GLTileEngine::destroyContext()
-{
-	// release the current context and surface
-	eglMakeCurrent(this->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-
-	// destroy the context
-	if(this->context != EGL_NO_CONTEXT)
-	{
-		eglDestroyContext(this->display, this->context);
-		this->context = EGL_NO_CONTEXT;
-	}
-
-	// destroy the surface
-	if(this->surface != EGL_NO_SURFACE)
-	{
-		//eglDestroySurface(this->display, this->surface);
-		this->surface = EGL_NO_SURFACE;
-	}
-}
-
-/**
- * Initializes the OpenGL context using EGL.
- */
-bool GLTileEngine::initContext()
-{
-	// if there is already a current context, destroy it first
-	destroyContext();
-
-	// choose the default config for now
-	int numConfigs = 1;
-	
-	EGLint attribute_list[] = {
-		EGL_RED_SIZE, 8,
-		EGL_GREEN_SIZE, 8,
-		EGL_BLUE_SIZE, 8,
-		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-		EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
-		EGL_NONE
-	};
-	if(!eglChooseConfig(this->display, attribute_list, &this->config, 1, &numConfigs))
-	{
-		printf("Choosing EGL config failed (error code: 0x%x)\n", eglGetError());
-		return false;
-	}
-	else if(numConfigs == 0)
-	{
-		printf("No matching EGL configs\n");
-		return false;
-	}
-	
-	this->context = eglCreateContext(this->display, this->config, EGL_NO_CONTEXT, NULL);
-	if(this->context == EGL_NO_CONTEXT)
-	{
-		printf("Error: creating OpenGL context failed (error code: 0x%x)\n", eglGetError());
-		return false;
-	}
-
-#if USE_PBUFFER
-	if(this->surface == EGL_NO_SURFACE)
-	{
-		if(!initSurface()) return false;
-	}
-#endif
-	
-	return true;
-}
-
-bool GLTileEngine::initSurface()
-{
-	// create the surface
-#if USE_PBUFFER
-	EGLint attribs[] = {
-		EGL_WIDTH, width,
-		EGL_HEIGHT, height,
-		EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGBA,
-		EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
-		EGL_NONE
-	};
-	this->surface = eglCreatePbufferSurface(this->display, this->config, attribs);
-#elif USE_PIXMAP
-	EGLint attribs[] = {EGL_NONE};
-	this->surface = eglCreatePixmapSurface(this->display, this->config, this->pixmap, attribs);
-#else
-	EGLint attribs[] = {EGL_NONE};
-	this->surface = eglCreateWindowSurface(this->display, this->config, this->window, NULL);
-#endif
-	if(this->surface == EGL_NO_SURFACE)
-	{
-		printf("Error: EGL surface creation failed (error code: 0x%x)\n", eglGetError());
-		return false;
-	}
-	
-	return true;
 }
 
 /**
@@ -202,9 +96,9 @@ bool GLTileEngine::setSize(int width, int height, unsigned char* buffer)
 bool GLTileEngine::initGL()
 {
 	// make the context current
-	if(eglMakeCurrent(this->display, this->surface, this->surface, context) == EGL_FALSE)
+	if(!this->platform->makeCurrent())
 	{
-		printf("eglMakeCurrent returned false\n");
+		printf("MakeCurrent returned false\n");
 		return false;
 	}
 	
@@ -276,7 +170,7 @@ void GLTileEngine::finishFrame()
 	glReadPixels(0, 0, this->width, this->height, GL_BGRA, GL_UNSIGNED_BYTE, this->buffer);
 #else
 	// render directly into the target window
-	eglSwapBuffers(this->display, this->surface);
+	this->platform->swapBuffers();
 #endif
 }
 

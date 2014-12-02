@@ -3,7 +3,7 @@
 
 #include "micropolis.h"
 #include "glsprites.h"
-#include <EGL/egl.h>
+#include "glplatform.h"
 
 /** @return the smallest power of two that is greater than or equal to num */
 static inline int nextPowerOfTwo(int num)
@@ -21,11 +21,7 @@ static inline int nextPowerOfTwo(int num)
  */
 class GLTileEngine {
 private:
-	EGLDisplay display;
-	EGLContext context;
-	EGLSurface surface;
-	EGLConfig config;
-	NativeWindowType window;
+	GLPlatform* platform;
 
 	int width;
 	int height;
@@ -45,9 +41,6 @@ private:
 	unsigned char* buffer;
 	GLSprites sprites;
 
-	void destroyContext();
-	bool initContext();
-	bool initSurface();
 	bool loadTexture();
 	void genTexCoords();
 	void renderTile(float x, float y, int tile);

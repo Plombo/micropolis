@@ -115,10 +115,10 @@ int growthTileFunction(Micropolis* engine, int x, int y, int value)
  */
 void GLTileEngine::drawOverlay(void* mapBuf, int overlayType)
 {
-	static MapTextureMaker<Byte> powerOverlay(WORLD_W, WORLD_H, powerGridColorMap, powerGridTileFunction);
-	static MapTextureMaker<Byte> densityOverlay(WORLD_W_2, WORLD_H_2, dataColorMap, NULL);
-	static MapTextureMaker<unsigned short> coverageOverlay(WORLD_W_8, WORLD_H_8, dataColorMap, coverageTileFunction);
-	static MapTextureMaker<short> growthOverlay(WORLD_W_8, WORLD_H_8, rateColorMap, growthTileFunction);
+	static MapTextureMaker<Byte> powerOverlay(WORLD_W, WORLD_H, (const int *)powerGridColorMap, powerGridTileFunction);
+	static MapTextureMaker<Byte> densityOverlay(WORLD_W_2, WORLD_H_2, (const int *)dataColorMap, NULL);
+	static MapTextureMaker<unsigned short> coverageOverlay(WORLD_W_8, WORLD_H_8, (const int *)dataColorMap, coverageTileFunction);
+	static MapTextureMaker<short> growthOverlay(WORLD_W_8, WORLD_H_8, (const int *)rateColorMap, growthTileFunction);
 	
 	float tcxScale = 1.0f, tcyScale = 1.0f;
 	

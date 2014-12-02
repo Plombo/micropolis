@@ -7,7 +7,7 @@
 #define COL_BYTES (BYTES_PER_TILE * WORLD_H)
 #define ROW_BYTES BYTES_PER_TILE
 
-extern const int colors[];
+extern const unsigned int colors[];
 
 // XXX: hackity hack
 size_t pointerAsInt(unsigned char* ptr)
@@ -43,7 +43,7 @@ void renderMap(void* tileBuffer, unsigned char* buf)
 	}
 }
 
-const int colors[] = {
+const unsigned int colors[] = {
 	0xffd1805b,
 	0xffc37b6b,
 	0xff6561e0,
