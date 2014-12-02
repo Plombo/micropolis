@@ -1,18 +1,21 @@
 #!/usr/bin/env python
 #
 
-try:
-    from gi import pygtkcompat
-except ImportError:
-    pygtkcompat = None
+gtk3 = False
 
-if pygtkcompat is not None:
-    pygtkcompat.enable() 
-    pygtkcompat.enable_gtk(version='3.0')
-    from gi.repository import GdkX11
+if gtk3:
+    try:
+        from gi import pygtkcompat
+    except ImportError:
+        pygtkcompat = None
+
+    if pygtkcompat is not None:
+        pygtkcompat.enable() 
+        pygtkcompat.enable_gtk(version='3.0')
+        from gi.repository import GdkX11
 
 from pyMicropolis.gtkFrontend import main
-main.run()
-#import cProfile
-#cProfile.run('main.run()')
+#main.run()
+import cProfile
+cProfile.run('main.run()')
 
