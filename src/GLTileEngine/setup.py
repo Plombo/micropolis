@@ -1,4 +1,4 @@
-# Makefile for MicropolisCore python interface
+# setup.py
 #
 # Micropolis, Unix Version.  This game was released for the Unix platform
 # in or about 1990 and has been modified for inclusion in the One Laptop
@@ -59,18 +59,48 @@
 # CONSUMER, SO SOME OR ALL OF THE ABOVE EXCLUSIONS AND LIMITATIONS MAY
 # NOT APPLY TO YOU.
 
+
 ########################################################################
+# TileEngine setup file.
+# Don Hopkins
 
 
-all:
-	echo TODO
+from distutils.core import *
 
-clean:
-	rm -rf *~ *.pyc *.pyd *.so */?*~ */*.pyc */*.pyd */*.so \
-		tileEngine/tileengine.py \
-		glTileEngine/gltileengine.py \
-		cellEngine/cellengine.py \
-		micropolisEngine/micropolisengine.py
+setup(
+    name='GLTileEngineInterface',
+    version='1.0',
+    description='OpenGL Tile Engine Interface',
+    author='Bryan Cain',
+    author_email='bryancain3@gmail.com',
+    url='http://github.com/Plombo',
+    ext_modules = [
+        Extension('_gltileengine', [
+                'objs/gltileengine_wrap.cpp',
+                'src/gltileengine.cpp',
+                'src/sprite.cpp',
+                'src/glsprites.cpp',
+                'src/readpng.cpp',
+                'src/map.cpp',
+                'src/overlay.cpp',
+                'src/eglplatform.cpp'
+            ],
+            include_dirs = [
+                'src',
+                '../MicropolisEngine/src',
+                '/usr/local/include',
+            ],
+            library_dirs = [
+                '/opt/gtk/lib',
+                '/opt/local/lib',
+            ],
+            libraries = [
+                'GL',
+                'png',
+                'EGL'
+            ]),
+    ]
+)
 
 
 ########################################################################

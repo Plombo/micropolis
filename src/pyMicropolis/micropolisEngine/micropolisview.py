@@ -70,6 +70,7 @@
 
 
 import gtk
+import gtkcompat
 import cairo
 import pango
 
@@ -127,7 +128,10 @@ class MicropolisView(gtk.DrawingArea):
             gtk.gdk.BUTTON_PRESS_MASK |
             gtk.gdk.BUTTON_RELEASE_MASK)
 
-        self.connect('expose_event', self.handleExpose)
+        if gtk.gtk_version[0] == 3:
+        	self.connect('draw', self.handleExpose)
+        else:
+        	self.connect('expose_event', self.handleExpose)
         self.connect('enter_notify_event', self.handleEnterNotify)
         self.connect('enter_notify_event', self.handleLeaveNotify)
         self.connect('motion_notify_event', self.handleMotionNotify)
@@ -148,7 +152,7 @@ class MicropolisView(gtk.DrawingArea):
 
     def draw(self, widget=None, event=None):
 
-        ctxWindow = self.window.cairo_create()
+        ctxWindow = self.get_window().cairo_create()
 
         winRect = self.get_allocation()
         winWidth = winRect.width
@@ -194,7 +198,7 @@ class MicropolisView(gtk.DrawingArea):
         ctx,
         playout):
 
-        playout.set_text(text)
+        gtkcompat.layout_set_text(playout, text)
 
         ctx.set_source_rgb(1.0, 1.0, 1.0)
         for dx, dy in (
@@ -202,11 +206,11 @@ class MicropolisView(gtk.DrawingArea):
             (-1,  1), ( 1,  1),
         ):
             ctx.move_to(x + dx, y +  dy)
-            ctx.show_layout(playout)
+            gtkcompat.show_layout(ctx, playout)
 
         ctx.set_source_rgb(0.0, 0.0, 0.0)
         ctx.move_to(x, y)
-        ctx.show_layout(playout)
+        gtkcompat.show_layout(ctx, playout)
 
 
     def pinMarkupXY(
@@ -243,11 +247,8 @@ class MicropolisView(gtk.DrawingArea):
 
     def updateCursorPosition(self, event):
 
-        if not event:
-            x, y, state = self.window.get_pointer()
-        elif (hasattr(event, 'is_hint') and
-              event.is_hint):
-            x, y, state = event.window.get_pointer()
+        if not event or (hasattr(event, 'is_hint') and event.is_hint):
+            x, y, state = gtkcompat.event_get_pointer(event)
         else:
             x = event.x
             y = event.y

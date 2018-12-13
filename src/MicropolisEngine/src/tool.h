@@ -118,7 +118,7 @@ public:
     ~ToolEffects();
 
     void clear();
-    void modifyWorld();
+    virtual void modifyWorld();
     bool modifyIfEnoughFunding();
 
     MapValue getMapValue(const Position& pos) const;
@@ -128,7 +128,7 @@ public:
     inline int getCost() const;
 
     inline void addCost(int amount);
-    void setMapValue(const Position& pos, MapValue mapVal);
+    virtual void setMapValue(const Position& pos, MapValue mapVal);
     inline void setMapValue(int x, int y, MapValue mapVal);
     inline void addFrontendMessage(FrontendMessage *msg);
 
@@ -216,6 +216,19 @@ inline void ToolEffects::addFrontendMessage(FrontendMessage *msg)
 {
     this->frontendMessages.push_back(msg);
 }
+
+////////////////////////////////////////////////////////////////////////
+
+/**
+ * Class used by the UI for determining in advance whether a tool can be used.
+ * It is a subclass of ToolEffects that does not actually modify the world.
+ */
+class ToolTest : public ToolEffects
+{
+public:
+    ToolTest(Micropolis *sim);
+    void modifyWorld();
+};
 
 ////////////////////////////////////////////////////////////////////////
 

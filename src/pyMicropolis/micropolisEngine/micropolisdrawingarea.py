@@ -73,6 +73,7 @@ import sys
 import os
 import time
 import gtk
+import gtkcompat
 import gobject
 import cairo
 import pango
@@ -88,7 +89,8 @@ import array
 
 import micropolisengine
 import micropolispiemenus
-from pyMicropolis.tileEngine import tileengine, tiledrawingarea
+from pyMicropolis.tileEngine import tileengine, tiledrawingarea, tiletool
+from pyMicropolis.glTileEngine import gltileengine, bytearray
 import micropolistool
 
 
@@ -207,6 +209,16 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
         self.blinkFlag = True
 
         self.reset()
+        
+        if isinstance(self, EditableMicropolisDrawingArea):
+            gltengine = gltileengine.GLTileEngine(self.engine, self.engine.getMapBuffer())
+            print 'GLTileEngine object: ' + str(gltengine)
+            self.tileBuffer = bytearray.getByteArray(512*512*4)
+            self.lastWidth = -1
+            self.lastHeight = -1
+            #if gltengine.initGL(512, 512, self.tileBuffer.array): print 'GL initialized OK'
+            #else: print 'Failed to initialize GL'
+            self.gltengine = gltengine
 
 
     def update(self, name, *args):
@@ -270,6 +282,8 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
         self,
         ctx):
 
+        # We don't need this function anymore and it maxes CPU usage when overlays are enabled
+        return
         if self.showData:
             self.drawData(ctx)
 
@@ -287,7 +301,6 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
             if tool:
                 tool.drawCursor(self, ctx)
 
-
     def setMapStyle(self, mapStyle):
         self.mapStyle = mapStyle
 
@@ -299,6 +312,10 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
             engine.getDataImageAlphaSize(mapStyle)
         if not dataImage:
             return
+        
+        # screenshot
+        try: f = open('screenshot.png', 'rb'); f.close()
+        except IOError: dataImage.write_to_png('screenshot.png')
 
         width = 1.0 / width
         height = 1.0 / height
@@ -453,11 +470,398 @@ class MicropolisDrawingArea(tiledrawingarea.TileDrawingArea):
 ########################################################################
 
 
-class EditableMicropolisDrawingArea(MicropolisDrawingArea):
-
-
+class EditableMicropolisDrawingAreaCairo(MicropolisDrawingArea):
     pass
 
+# Much of this class is copy-pasta from tiledrawingarea.TileDrawingArea. Eventually
+# most of the copied code should be removable from that class, though.
+class EditableMicropolisDrawingAreaGL(gtk.DrawingArea):
+    def __init__(
+        self,
+        engine=None,
+        interests=('city', 'tick'),
+        sprite=micropolisengine.SPRITE_NOTUSED,
+        showData=True,
+        showRobots=True,
+        showSprites=True,
+        showChalk=True,
+        mapStyle='all',
+        overlayAlpha=0.5,
+        engaged=True,
+        **args):
+
+        self.tileCount = micropolisengine.TILE_COUNT
+        self.sourceTileSize = micropolisengine.BITS_PER_TILE
+        self.worldCols = micropolisengine.WORLD_W
+        self.worldRows = micropolisengine.WORLD_H
+        self.pannable = True
+        self.tileSize = 16
+        self.scale = 1.0
+        self.panX = 0
+        self.panY = 0
+
+        self.engine = engine
+        self.showData = showData
+        self.showRobots = showRobots
+        self.showSprites = showSprites
+        self.showChalk = showChalk
+        self.mapStyle = mapStyle
+        self.overlayAlpha = overlayAlpha
+        self.engaged = engaged
+        self.trackingTool = None
+        self.selectedTool = None
+        self.pie = None
+        self.cursorX = -1
+        self.cursorY = -1
+        self.cursorRow = 0
+        self.cursorCol = 0
+        self.down = False
+
+        gtk.DrawingArea.__init__(self, **args)
+        self.set_double_buffered(False)
+        self.set_can_focus(True)
+
+        self.sprite = sprite
+
+        engine.expressInterest(
+            self,
+            interests)
+        engine.addView(self)
+
+        self.blinkFlag = True
+
+        self.selectToolByName('Bulldozer')
+        self.show()
+        
+        winRect = self.get_allocation()
+        winWidth = winRect.width
+        winHeight = winRect.height
+
+        gltengine = gltileengine.GLTileEngine(self.engine, self.engine.getMapBuffer())
+        self.lastWidth = -1
+        self.lastHeight = -1
+        self.gltengine = gltengine
+        
+        # XXX temporary Cairo stuff
+        self.overlayBuffer = None
+        self.overlaySurface = None
+
+        self.connect(gtkcompat.expose_event, self.handleExpose)
+        self.connect('configure-event', self.handleConfigure)
+        self.connect('button_press_event', self.handleButtonPress)
+        self.connect('button_release_event', self.handleButtonRelease)
+        self.connect('motion_notify_event', self.handleMotionNotify)
+        self.connect('enter_notify_event', self.handleEnterNotify)
+        self.set_events(gtk.gdk.ENTER_NOTIFY_MASK |
+                        gtk.gdk.POINTER_MOTION_MASK |
+                        gtk.gdk.BUTTON_PRESS_MASK |
+                        gtk.gdk.BUTTON_RELEASE_MASK)
+
+    def handleConfigure(self, widget, event, *args):
+        # set up render destination
+        winRect = self.get_allocation()
+        winWidth = winRect.width
+        winHeight = winRect.height
+        #self.tileBuffer = bytearray.getByteArray(winHeight * winWidth * 4)
+        self.lastWidth = winWidth
+        self.lastHeight = winHeight
+        if gtkcompat.gtk_major_version == 3:
+            self.gltengine.setWindow(self.get_window().get_xid())
+        else:
+            self.gltengine.setWindow(self.get_window().xid)
+        if not self.gltengine.setSize(winWidth, winHeight, None):
+            print 'Error in EGL/OpenGL initialization'
+            sys.exit(1)
+        self.actuallyDraw()
+
+    def handleExpose(self, widget, event, *args):
+        self.actuallyDraw()
+        return False
+
+    def draw(self, widget=None, event=None):
+        pass
+    
+    def actuallyDraw(self):
+        panX = self.panX
+        panY = self.panY
+        
+        # start drawing the frame
+        self.gltengine.startFrame(int(-panX), int(-panY), self.scale)
+
+        # render tiles
+        self.gltengine.renderTiles()
+        
+        # draw cursor
+        tool = self.getActiveTool()
+        if tool and self.cursorX >= 0 and self.cursorY >= 0:
+            # tool.drawCursor uses Cairo, so do our own thing here
+            tileX = int(self.cursorX / self.tileSize)
+            tileY = int(self.cursorY / self.tileSize)
+            
+            toolResult = self.engine.predictToolSuccess(tool.toolIndex, tileX, tileY)
+            
+            x = int(self.cursorX) - self.tileSize * tool.cursorHotCol
+            y = int(self.cursorY) - self.tileSize * tool.cursorHotRow
+            canBuild = (toolResult == micropolisengine.TOOLRESULT_OK)
+            self.gltengine.drawCursor(x, y, tool.cursorCols, tool.cursorRows, canBuild)
+        
+        # draw sprites
+        self.drawSprites()
+        
+        # draw map overlay if there is one
+        self.drawOverlay()
+        
+        # finish drawing the frame
+        self.gltengine.finishFrame()
+
+    def drawSprites(self):
+        sprite = self.engine.spriteList
+        while sprite:
+            self.gltengine.drawSprite(sprite)
+            sprite = sprite.next
+
+    def drawOverlay(self):
+        overlayTypes = {
+            'powergrid': (self.engine.getPowerGridMapBuffer(), micropolisengine.MAP_TYPE_POWER),
+            'trafficdensity': (self.engine.getTrafficDensityMapBuffer(), micropolisengine.MAP_TYPE_TRAFFIC_DENSITY),
+            'pollutiondensity': (self.engine.getPollutionDensityMapBuffer(), micropolisengine.MAP_TYPE_POLLUTION),
+            'populationdensity': (self.engine.getPopulationDensityMapBuffer(), micropolisengine.MAP_TYPE_POPULATION_DENSITY),
+            'crimerate': (self.engine.getCrimeRateMapBuffer(), micropolisengine.MAP_TYPE_CRIME),
+            'landvalue': (self.engine.getLandValueMapBuffer(), micropolisengine.MAP_TYPE_LAND_VALUE),
+            'firecoverage': (self.engine.getFireCoverageMapBuffer(), micropolisengine.MAP_TYPE_FIRE_RADIUS),
+            'policecoverage': (self.engine.getPoliceCoverageMapBuffer(), micropolisengine.MAP_TYPE_POLICE_RADIUS),
+            'rateofgrowth': (self.engine.getRateOfGrowthMapBuffer(), micropolisengine.MAP_TYPE_RATE_OF_GROWTH),
+        }
+        if self.mapStyle in overlayTypes.keys():
+            self.gltengine.drawOverlay(*overlayTypes[self.mapStyle])
+    
+    def update(self, name, *args):
+        winRect = self.get_allocation()
+        winWidth = winRect.width
+        winHeight = winRect.height
+        if winWidth <= 1 or winHeight <= 1: return
+
+        self.queue_draw()
+    
+    def engage(self):
+        self.engaged = True
+
+    def disengage(self):
+        self.engaged = False
+    
+    def updateView(self):
+        self.queue_draw()
+    
+    def panTo(self, x, y):
+        self.panX = x
+        self.panY = y
+
+    def panBy(self, dx, dy):
+        self.panTo(
+            self.panX + dx,
+            self.panY + dy)
+    
+    def setScale(self, scale):
+        if self.scale == scale:
+            return
+
+        if not self.window:
+            return
+
+        self.scale = scale
+    
+    def centerOnTile(self, tileX, tileY):
+        tileSize = self.tileSize
+
+        px = -tileSize * tileX
+        py = -tileSize * tileY
+
+        rect = self.get_allocation()
+        winWidth = rect.width
+        winHeight = rect.height
+
+        px += winWidth / 2
+        py += winHeight / 2
+
+        #print "centerOnTile", "tile", tileX, tileY, "tileSize", self.tileSize, "scale", self.scale, "p", px, py
+
+        self.panTo(px, py)
+    
+    def makePie(self):
+        pie = micropolispiemenus.MakePie(lambda toolName: self.selectToolByName(toolName))
+        self.pie = pie
+    
+    def getPie(self):
+        pie = self.pie
+        if pie:
+            return pie
+
+        self.makePie()
+
+        return self.pie
+    
+    def getActiveTool(self):
+        return self.trackingTool or self.selectedTool
+    
+    def selectToolByName(self, toolName):
+        print "selectToolByName", toolName
+
+        tool = tiletool.TileTool.getToolByName(toolName)
+
+        lastTool = self.selectedTool
+        if lastTool:
+            tool.deselect(self)
+
+        if tool:
+            tool.select(self)
+
+        self.selectedTool = tool
+    
+    def handleButtonPress(self, widget, event):
+        if event.button == 1: # left button
+
+            self.down = True
+            self.downX = event.x
+            self.downY = event.y
+
+            tool = self.getActiveTool()
+            #print "Active tool:", tool
+            if tool:
+                tool.handleMouseDown(self, event)
+
+        elif event.button == 3: # right button
+
+            pie = self.getPie()
+
+            if pie:
+
+                win_x, win_y, state = gtkcompat.event_get_pointer(event)
+
+                #print "POP UP PIE", pie, win_x, win_y, state
+                #print "WIN", win_x, win_y
+
+                x, y = event.get_root_coords()
+
+                #print "ROOT", x, y
+
+                pie.popUp(x, y, False)
+
+    def handleButtonRelease(self, widget, event):
+        #print "handleButtonRelease TileDrawingArea", self
+        self.handleMouseDrag(event)
+        self.down = False
+
+        tool = self.getActiveTool()
+        if tool:
+            tool.handleMouseUp(self, event)
+
+    def handleMouseDrag(self, event):
+        tool = self.getActiveTool()
+        if tool:
+            tool.handleMouseDrag(self, event)
+
+    def handleMouseHover(self, event):
+        tool = self.getActiveTool()
+        if tool:
+            tool.handleMouseHover(self, event)
+
+    def getEventXY(self, event):
+        if (hasattr(event, 'is_hint') and
+            event.is_hint):
+            x, y, state = gtkcompat.event_get_pointer(event)
+        else:
+            x = event.x
+            y = event.y
+
+        tileSize = self.tileSize
+
+        return (
+            (x/self.scale - self.panX) / tileSize,
+            (y/self.scale - self.panY) / tileSize,
+        )
+
+
+    def getEventColRow(self, event):
+        if (hasattr(event, 'is_hint') and
+            event.is_hint):
+            x, y, state = gtkcompat.event_get_pointer(event)
+        else:
+            x = event.x
+            y = event.y
+
+        tileSize = self.tileSize
+        col = int((x/self.scale - self.panX) / tileSize)
+        row = int((y/self.scale - self.panY) / tileSize)
+
+        return (col, row)
+
+    def handleMotionNotify(self, widget, event):
+        if not event:
+            x, y, state = self.window.get_pointer()
+        elif hasattr(event, 'is_hint') and event.is_hint:
+            x, y, state = gtkcompat.event_get_pointer(event)
+        else:
+            x = event.x
+            y = event.y
+            state = event.state
+
+        self.mouseX = x
+        self.mouseY = y
+
+        tool = self.getActiveTool()
+        if tool:
+            # TODO finish
+            #tool.setCursorPos(self, x - self.panX, y - self.panY)
+            self.cursorX = x/self.scale - self.panX
+            self.cursorY = y/self.scale - self.panY
+
+        if self.down:
+            self.handleMouseDrag(event)
+        else:
+            self.handleMouseHover(event)
+
+    def handleEnterNotify(self, widget, event):
+        self.grab_focus()
+
+    # TODO finish me!!!
+    '''def handleKeyPress(self, widget, event):
+        key = event.keyval
+
+        if ((not self.trackingTool) and
+            (key in self.panKeys)):
+            panTool = tiletool.TileTool.getToolByName('Pan')
+            #print "panTool", panTool
+            if panTool:
+                self.trackingToolTrigger = key
+                self.trackingTool = panTool
+                panTool.startPanning(self)
+                #print "Activated panTool", panTool
+                return
+
+        if self.handleKey(key):
+            return
+
+        tool = self.getActiveTool()
+        if tool:
+            if tool.handleKeyDown(self, event):
+                return
+
+        # TODO: This might be handled by the pan tool.
+        if key == ord('=') or key == ord('+'):
+            self.changeScale(self.scale * 1.1)
+        elif key == ord('-'):
+            self.changeScale(self.scale / 1.1)
+        elif key == ord('r'):
+            self.changeScale(1.0)'''
+
+    def setMapStyle(self, mapStyle):
+        self.mapStyle = mapStyle
+
+
+# comment out one of the two lines below to select which class to actually use
+# note that the defined macros in gltileengine.cpp need to change depending on which we are using
+#EditableMicropolisDrawingArea = EditableMicropolisDrawingAreaCairo
+EditableMicropolisDrawingArea = EditableMicropolisDrawingAreaGL
 
 ########################################################################
 
@@ -574,6 +978,7 @@ class NavigationMicropolisDrawingArea(MicropolisDrawingArea):
         self.panningStartCursorY = 0
         self.panningStartPanX = 0
         self.panningStartPanY = 0
+        self.mapBuffer = bytearray.getByteArray(120 * 100 * 4)
 
 
     def drawOverlays(self, ctx):
@@ -691,7 +1096,7 @@ class NavigationMicropolisDrawingArea(MicropolisDrawingArea):
             x, y, state = self.window.get_pointer()
         elif (hasattr(event, 'is_hint') and
               event.is_hint):
-            x, y, state = event.window.get_pointer()
+            x, y, state = gtkcompat.event_get_pointer(event)
         else:
             x = event.x
             y = event.y
@@ -766,9 +1171,7 @@ class NavigationMicropolisDrawingArea(MicropolisDrawingArea):
         dx *= scale
         dy *= scale
 
-        view.panX = self.panningStartPanX + dx
-        view.panY = self.panningStartPanY + dy
-        view.updateView()
+        view.panTo(self.panningStartPanX + dx, self.panningStartPanY + dy)
 
 
     def handleButtonRelease(

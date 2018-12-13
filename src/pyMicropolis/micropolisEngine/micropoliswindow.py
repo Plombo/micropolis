@@ -73,7 +73,6 @@ import sys
 import os
 import time
 import gtk
-import gobject
 import cairo
 import pango
 import math
@@ -166,7 +165,7 @@ class MicropolisPanedWindow(gtk.Window):
 
         modeNotebook = gtk.Notebook()
         self.modeNotebook = modeNotebook
-        modeNotebook.set_group_id(0)
+        modeNotebook.set_group_name('modeNotebook')
         modeNotebook.set_show_tabs(False)
 
         startPanel = micropolisstartpanel.MicropolisStartPanel(
@@ -257,9 +256,9 @@ class MicropolisPanedWindow(gtk.Window):
         vpaned2.pack1(editMapView, resize=False, shrink=False)
         vpaned2.pack2(hpaned2, resize=False, shrink=False)
 
-        modeNotebook.append_page(startPanel)
+        modeNotebook.append_page(startPanel, None)
 
-        modeNotebook.append_page(vpaned1)
+        modeNotebook.append_page(vpaned1, None)
         
         # Create a top level vbox for the menu bar and top level mode notebook.
         

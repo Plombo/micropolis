@@ -70,6 +70,7 @@
 
 
 import gtk
+import gtkcompat
 import cairo
 import pango
 import micropolisengine
@@ -204,7 +205,7 @@ class MicropolisNoticeView(micropolisview.MicropolisView):
             #print markup1
             playout.set_markup(markup1)
             ctx.move_to(10, 10)
-            ctx.show_layout(playout)
+            gtkcompat.show_layout(ctx, playout)
 
 
 

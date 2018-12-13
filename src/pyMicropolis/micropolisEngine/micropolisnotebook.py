@@ -73,6 +73,7 @@ import sys
 import os
 import time
 import gtk
+import gtkcompat
 import gobject
 import cairo
 import pango
@@ -98,11 +99,19 @@ class MicropolisNotebook(gtk.Notebook):
 
         self.target = target
 
-        self.set_group_id(groupID)
+        self.set_group_name(str(groupID))
+
+        if gtkcompat.gtk_major_version == 3:
+            drag_target = gtk.TargetEntry.new(
+                "tab-move",
+                gtk.TARGET_SAME_APP,
+                groupID)
+        else:
+            drag_target = ("tab-move", gtk.TARGET_SAME_APP, groupID)
 
         self.drag_dest_set(
             gtk.DEST_DEFAULT_ALL, # gtk.DEST_DEFAULT_MOTION,
-            [("tab-move", gtk.TARGET_SAME_APP, groupID)],
+            [drag_target],
             gtk.gdk.ACTION_MOVE)
 
         def on_dnd_drag_leave(sender, context, time):
